@@ -1,10 +1,11 @@
+import 'package:attendance_management_system/adminpage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LoginPageOne extends StatefulWidget {
-  const LoginPageOne({Key? key}) : super(key: key);
+class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -44,7 +45,7 @@ const darkColorScheme = ColorScheme(
   shadow: Color(0xFF000000),
 );
 
-class _LoginPageState extends State<LoginPageOne> {
+class _LoginPageState extends State<LoginPage> {
   TextEditingController txtUsername = TextEditingController();
   TextEditingController txtPassword = TextEditingController();
 
@@ -238,18 +239,23 @@ class _LoginPageState extends State<LoginPageOne> {
     }
   }
 
-
   void signIn(BuildContext context) async {
-
 
     DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo/${txtUsername.text}");
     var sp = await ref.once();
 
     if (sp.snapshot.child("password").value == txtPassword.text) {
       showToast("Correct Password");
+      gotoAdminPage(context);
+
     } else {
       showToast("Incorrect Password");
     }
+  }
+
+  void gotoAdminPage(BuildContext context) {
+    Navigator.push(context,
+      MaterialPageRoute(builder: (context) => const AdminPage()),);
   }
 
   void showToast(String str){
