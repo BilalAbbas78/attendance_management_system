@@ -1,3 +1,5 @@
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,6 +10,8 @@ void main() async{
 
   runApp(const MyApp());
 }
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -31,34 +35,31 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
+  // List<Shop> itemsShop = [];
+  // Shop itemShop = Shop("A", "B", "C", "D", "E");
+  // DatabaseReference itemRefShop = FirebaseDatabase.instance.reference().child('UserInfo');
+
   final db = FirebaseFirestore.instance;
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static List<Widget> _widgetOptions = <Widget>[
-    ListView(
-      children: [
-        Card(
-          child: ListTile(
-            // onTap: () {},
-            title: Text("Hello"),
-            leading: CircleAvatar(
-              backgroundColor: Colors.blue,
-              child: Text("H"),
+    Container(
+      child: Column(
+          children: <Widget>[
+            Flexible(
+              child: FirebaseAnimatedList(
+                  query: FirebaseDatabase.instance.reference().child('UserInfo'),
+                  itemBuilder:(_, DataSnapshot snapshot, Animation<double> animation, int index){
+                    return ListTile(
+                      title: Text(snapshot.key.toString()),
+                      // title: Text((snapshot.value as DocumentSnapshot)['password']),
+                    );
+                  }
+              ),
             ),
-          ),
-        ),
-        Card(
-          child: ListTile(
-            // onTap: () {},
-            title: Text("Bye"),
-            leading: CircleAvatar(
-              backgroundColor: Colors.blue,
-              child: Text("B"),
-            ),
-          ),
-        ),
-      ],
+          ]
+      ),
     ),
     Text(
       'Index 1: Business',
@@ -106,4 +107,16 @@ class _AdminPageState extends State<AdminPage> {
       ),
     );
   }
+}
+
+class Shop {
+  String key;
+  String name;
+  String address;
+  String phone;
+  String thumbnail;
+
+  Shop(this.key, this.name,this.address,this.phone,this.thumbnail);
+
+
 }
