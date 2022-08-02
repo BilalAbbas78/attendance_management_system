@@ -1,6 +1,6 @@
-import 'dart:developer';
-
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+// import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPageOne extends StatefulWidget {
@@ -45,6 +45,8 @@ const darkColorScheme = ColorScheme(
 );
 
 class _LoginPageState extends State<LoginPageOne> {
+  TextEditingController txtController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -70,13 +72,13 @@ class _LoginPageState extends State<LoginPageOne> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
                     Padding(
                       padding: EdgeInsets.only(top: 20.0),
                       child: Text(
                         'Attendance Management System',
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -132,6 +134,7 @@ class _LoginPageState extends State<LoginPageOne> {
                   height: 30,
                 ),
                 TextFormField(
+                  controller: txtController,
                   validator: (val) {
                     if (val == null || val.isEmpty) {
                       return "Please enter a password";
@@ -161,7 +164,7 @@ class _LoginPageState extends State<LoginPageOne> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     InkWell(
-                      onTap: () {},
+                      onTap: () => signUp(context),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
@@ -187,7 +190,7 @@ class _LoginPageState extends State<LoginPageOne> {
                         padding: const EdgeInsets.symmetric(
                             vertical: 16, horizontal: 28),
                       ),
-                      onPressed: () {},
+                      onPressed: () => signIn(context),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -215,5 +218,28 @@ class _LoginPageState extends State<LoginPageOne> {
         ),
       ),
     );
+  }
+
+  void signUp(BuildContext context) async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo/123");
+
+    await ref.set({
+      "name": txtController.text,
+      });
+  }
+
+
+  void signIn(BuildContext context) async {
+
+
+
+
+
+    // var alertDialog = const AlertDialog(
+    //   title: Text('Sign In'),
+    // );
+    //
+    // showDialog(context: context, builder: (BuildContext context) => alertDialog);
+
   }
 }
