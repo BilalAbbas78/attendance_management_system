@@ -35,6 +35,8 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
+
+
   // List<Shop> itemsShop = [];
   // Shop itemShop = Shop("A", "B", "C", "D", "E");
   // DatabaseReference itemRefShop = FirebaseDatabase.instance.reference().child('UserInfo');
@@ -43,29 +45,36 @@ class _AdminPageState extends State<AdminPage> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static List<Widget> _widgetOptions = <Widget>[
-    Container(
-      child: Column(
-          children: <Widget>[
-            Flexible(
-              child: FirebaseAnimatedList(
-                  query: FirebaseDatabase.instance.reference().child('UserInfo'),
-                  itemBuilder:(_, DataSnapshot snapshot, Animation<double> animation, int index){
-                    return ListTile(
-                      title: Text(snapshot.key.toString()),
-                      // title: Text((snapshot.value as DocumentSnapshot)['password']),
-                    );
+  static final List<Widget> _widgetOptions = <Widget>[
+    Column(
+        children: <Widget>[
+          Flexible(
+            child: FirebaseAnimatedList(
+                query: FirebaseDatabase.instance.ref().child('UserInfo'),
+                itemBuilder:(_, DataSnapshot snapshot, Animation<double> animation, int index){
+                  var list = [];
+                  // debugPrint(snapshot.value.toString());
+                  for (var item in snapshot.children) {
+                    debugPrint(item.value.toString());
+                    // return ListTile(
+                    //   title: Text(item.value.toString()),
+                    //   // title: Text((snapshot.value as DocumentSnapshot)['password']),
+                    // );
                   }
-              ),
+                  return const ListTile(
+                    title: Text("ABC"),
+                    // title: Text((snapshot.value as DocumentSnapshot)['password']),
+                  );
+                }
             ),
-          ]
-      ),
+          ),
+        ]
     ),
-    Text(
+    const Text(
       'Index 1: Business',
       style: optionStyle,
     ),
-    Text(
+    const Text(
       'Index 2: School',
       style: optionStyle,
     ),
