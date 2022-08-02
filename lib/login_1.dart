@@ -1,6 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-// import 'package:fluttertoast/fluttertoast.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPageOne extends StatefulWidget {
@@ -45,7 +45,8 @@ const darkColorScheme = ColorScheme(
 );
 
 class _LoginPageState extends State<LoginPageOne> {
-  TextEditingController txtController = TextEditingController();
+  TextEditingController txtUsername = TextEditingController();
+  TextEditingController txtPassword = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +108,7 @@ class _LoginPageState extends State<LoginPageOne> {
                   height: 40,
                 ),
                 TextFormField(
+                  controller: txtUsername,
                   validator: (val) {
                     if (val == null || val.isEmpty) {
                       return "Please enter a username";
@@ -134,7 +136,7 @@ class _LoginPageState extends State<LoginPageOne> {
                   height: 30,
                 ),
                 TextFormField(
-                  controller: txtController,
+                  controller: txtPassword,
                   validator: (val) {
                     if (val == null || val.isEmpty) {
                       return "Please enter a password";
@@ -220,26 +222,43 @@ class _LoginPageState extends State<LoginPageOne> {
     );
   }
 
-  void signUp(BuildContext context) async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo/123");
 
-    await ref.set({
-      "name": txtController.text,
-      });
+
+  void signUp(BuildContext context) async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo/${txtUsername.text}");
+    var sp = await ref.once();
+
+    if (sp.snapshot.value == null) {
+      await ref.set({
+        "password": txtPassword.text,
+        });
+      showToast("Account created successfully");
+    } else {
+      showToast("Account already exists");
+    }
   }
 
 
   void signIn(BuildContext context) async {
 
 
+    DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo/${txtUsername.text}");
+    var sp = await ref.once();
 
+    if (sp.snapshot.child("password").value == txtPassword.text) {
+      showToast("Correct Password");
+    } else {
+      showToast("Incorrect Password");
+    }
+  }
 
-
-    // var alertDialog = const AlertDialog(
-    //   title: Text('Sign In'),
-    // );
-    //
-    // showDialog(context: context, builder: (BuildContext context) => alertDialog);
-
+  void showToast(String str){
+    Fluttertoast.showToast(
+        msg: str,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.yellow
+    );
   }
 }
