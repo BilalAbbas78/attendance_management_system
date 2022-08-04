@@ -1,8 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,6 +8,50 @@ void main() async{
 
   runApp(const MyApp());
 }
+
+class UserAttendance {
+  String profilePic, username, attendance, date;
+  UserAttendance(this.profilePic, this.username, this.date, this.attendance);
+}
+
+class DatabaseKeyValue {
+  String key;
+  String value;
+  DatabaseKeyValue(this.key, this.value);
+}
+
+class Database {
+  String parent;
+  List<DatabaseKeyValue> children = [];
+  Database(this.parent);
+}
+
+int getMaxLength(List<Database> db){
+  int count = 0;
+  for (var i in db){
+    for (var j in i.children){
+      count++;
+    }
+  }
+  return count;
+}
+
+void setUserAttendance(List<Database> list, List<UserAttendance> userAttendanceList){
+  userAttendanceList.clear();
+  for(var e in list){
+    for (var e2 in e.children) {
+      userAttendanceList.add(UserAttendance("", e.parent, e2.key.replaceFirst("Attendance-", ""), e2.value));
+    }
+  }
+}
+
+
+// class UserAttendance {
+//   String username;
+//   String date;
+//   String attendance;
+//   UserAttendance(this.username, this.date, this.attendance);
+// }
 
 
 
@@ -23,6 +65,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: _title,
       home: AdminPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -38,13 +81,20 @@ class _AdminPageState extends State<AdminPage> {
 
   // static var list = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 
-  static List<String> list = <String>[];
+  // static List<String> list = <String>[];
+
+  static List<UserAttendance> userAttendanceList = <UserAttendance>[];
+
+  static List<Database> dbList = [];
+
+
+
 
   // List<Shop> itemsShop = [];
   // Shop itemShop = Shop("A", "B", "C", "D", "E");
   // DatabaseReference itemRefShop = FirebaseDatabase.instance.reference().child('UserInfo');
 
-  final db = FirebaseFirestore.instance;
+  // final db = FirebaseFirestore.instance;
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
@@ -53,13 +103,19 @@ class _AdminPageState extends State<AdminPage> {
         children: <Widget>[
           Flexible(
             child: ListView.builder(
-              itemCount: list.length,
+              itemCount: userAttendanceList.length,
               itemBuilder: (BuildContext context, int index) {
                 return Card(
                   shadowColor: Colors.grey.shade300,
                   child: ListTile(
                     title: Text(
-                      list[index],
+                      userAttendanceList[index].username,
+                    ),
+                    subtitle: Text(
+                      userAttendanceList[index].date,
+                    ),
+                    trailing: Text(
+                      userAttendanceList[index].attendance,
                     ),
                   ),
                 );
@@ -93,19 +149,28 @@ class _AdminPageState extends State<AdminPage> {
     // debugPrint(database.snapshot.value.toString());
 
     // debugPrint(database.toString());
-    list.clear();
+    // list.clear();
+
+    dbList.clear();
 
     for (var element in database.snapshot.children) {
+      Database dbUser = Database(element.key.toString());
       for (var element2 in element.children) {
-        list.add("${element2.key} ${element2.value}");
+        dbUser.children.add(DatabaseKeyValue(element2.key.toString(), element2.value.toString()));
+        // list.add("${element2.key} ${element2.value}");
         // debugPrint("${element2.key} ${element2.value}");
 
       }
+      dbList.add(dbUser);
     }
 
-    for(var e in list){
-      debugPrint(e);
+    for(var e in dbList){
+      for (var e2 in e.children) {
+        debugPrint("${e.parent} ${e2.key} ${e2.value}");
+      }
     }
+
+    setUserAttendance(dbList, userAttendanceList);
 
     return true;
   }
@@ -113,7 +178,7 @@ class _AdminPageState extends State<AdminPage> {
 
   @override
   Widget build(BuildContext context) {
-    DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo");
+    // DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo");
 
     return FutureBuilder<bool>(
         future: initialize(),
@@ -147,21 +212,18 @@ class _AdminPageState extends State<AdminPage> {
               ),
             );
           } else {
-            return Center(child: const CircularProgressIndicator());
+            return Scaffold(
+                appBar: AppBar(
+                  title: const Text('Attendance Management System'),
+                ),
+                body: const Center(
+                  child: CircularProgressIndicator()
+                )
+            );
           }
         }
     );
   }
 }
 
-class Shop {
-  String key;
-  String name;
-  String address;
-  String phone;
-  String thumbnail;
 
-  Shop(this.key, this.name,this.address,this.phone,this.thumbnail);
-
-
-}
