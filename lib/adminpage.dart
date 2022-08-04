@@ -36,6 +36,9 @@ class AdminPage extends StatefulWidget {
 
 class _AdminPageState extends State<AdminPage> {
 
+  // static var list = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+
+  static List<String> list = <String>[];
 
   // List<Shop> itemsShop = [];
   // Shop itemShop = Shop("A", "B", "C", "D", "E");
@@ -49,23 +52,18 @@ class _AdminPageState extends State<AdminPage> {
     Column(
         children: <Widget>[
           Flexible(
-            child: FirebaseAnimatedList(
-                query: FirebaseDatabase.instance.ref().child('UserInfo'),
-                itemBuilder:(_, DataSnapshot snapshot, Animation<double> animation, int index){
-                  var list = [];
-                  // debugPrint(snapshot.value.toString());
-                  for (var item in snapshot.children) {
-                    debugPrint(item.value.toString());
-                    // return ListTile(
-                    //   title: Text(item.value.toString()),
-                    //   // title: Text((snapshot.value as DocumentSnapshot)['password']),
-                    // );
-                  }
-                  return const ListTile(
-                    title: Text("ABC"),
-                    // title: Text((snapshot.value as DocumentSnapshot)['password']),
-                  );
-                }
+            child: ListView.builder(
+              itemCount: list.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Card(
+                  shadowColor: Colors.grey.shade300,
+                  child: ListTile(
+                    title: Text(
+                      list[index],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ]
@@ -86,34 +84,72 @@ class _AdminPageState extends State<AdminPage> {
     });
   }
 
+  Future<bool> initialize() async {
+    final database = await FirebaseDatabase.instance
+        .ref()
+        .child("UserInfo")
+        .once();
+
+    // debugPrint(database.snapshot.value.toString());
+
+    // debugPrint(database.toString());
+    list.clear();
+
+    for (var element in database.snapshot.children) {
+      for (var element2 in element.children) {
+        list.add("${element2.key} ${element2.value}");
+        // debugPrint("${element2.key} ${element2.value}");
+
+      }
+    }
+
+    for(var e in list){
+      debugPrint(e);
+    }
+
+    return true;
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Attendance Management System'),
-      ),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'View Attendance',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Business',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: 'School',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped,
-      ),
+    DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo");
+
+    return FutureBuilder<bool>(
+        future: initialize(),
+        builder: (context, AsyncSnapshot<bool> snapshot) {
+          if (snapshot.hasData) {
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Attendance Management System'),
+              ),
+              body: Center(
+                child: _widgetOptions.elementAt(_selectedIndex),
+              ),
+              bottomNavigationBar: BottomNavigationBar(
+                items: const <BottomNavigationBarItem>[
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home),
+                    label: 'View Attendance',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.business),
+                    label: 'Business',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.school),
+                    label: 'School',
+                  ),
+                ],
+                currentIndex: _selectedIndex,
+                selectedItemColor: Colors.amber[800],
+                onTap: _onItemTapped,
+              ),
+            );
+          } else {
+            return Center(child: const CircularProgressIndicator());
+          }
+        }
     );
   }
 }
