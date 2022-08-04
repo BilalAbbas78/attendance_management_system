@@ -148,7 +148,7 @@ class _AdminPageState extends State<AdminPage> {
                       // ),
                       trailing: DropdownButton<String>(
                         value: userAttendanceList[index].attendance,
-                        items: <String>['Present', 'Absent'].map((String value) {
+                        items: <String>['Present', 'Absent', 'Leave'].map((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
                             child: Text(value),
@@ -191,6 +191,15 @@ class _AdminPageState extends State<AdminPage> {
             return Scaffold(
               appBar: AppBar(
                 title: const Text('Attendance Management System'),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.calendar_month),
+                    onPressed: () {
+                      showToast("Calender clicked");
+                    },
+                  ),
+                  // add more IconButton
+                ],
               ),
               body: Center(
                 child: getWidget(),
