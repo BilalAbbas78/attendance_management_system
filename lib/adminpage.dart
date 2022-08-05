@@ -4,6 +4,11 @@ import 'package:firebase_core/firebase_core.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:month_year_picker/month_year_picker.dart';
+// ignore: depend_on_referenced_packages
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +39,25 @@ class LeaveApproval {
   LeaveApproval(this.username, this.date, this.reason);
 }
 
+class Grading {
+  String username, grade = "", present, absent, leave;
+  Grading(this.username, this.present, this.absent, this.leave){
+    if (int.parse(present) >= 26) {
+      grade = "A";
+    } else if (int.parse(present) >= 21) {
+      grade = "B";
+    } else if (int.parse(present) >= 16) {
+      grade = "C";
+    } else if (int.parse(present) >= 11) {
+      grade = "D";
+    } else if (int.parse(present) >= 6) {
+      grade = "E";
+    } else {
+      grade = "F";
+    }
+  }
+}
+
 
 
 class MyApp extends StatelessWidget {
@@ -44,6 +68,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        MonthYearPickerLocalizations.delegate,
+      ],
       title: _title,
       home: AdminPage(),
       debugShowCheckedModeBanner: false,
@@ -68,6 +96,8 @@ class _AdminPageState extends State<AdminPage> {
   static List<String> addAttendanceInfo = ['', '', ''];
   static List<UserAttendance> searchWithDateList = [];
   static List<LeaveApproval> leaveApprovalList = [];
+  static List<Grading> gradingList = [];
+  static List<String> gradingMonthYear = ['2022', '08'];
 
   int _selectedIndex = 0;
 
@@ -98,12 +128,42 @@ class _AdminPageState extends State<AdminPage> {
 
     setUserAttendance(dbList, userAttendanceList);
     setLeaveApprovalList();
+    setGradingList();
 
     String formatDate(DateTime date) => DateFormat("dd-MM-yyyy").format(date);
 
     searchWithDate(formatDate(selectedDateFilterAttendance));
 
     return true;
+  }
+
+  zeros(String str){
+    if (str.length == 1) {
+      return "0$str";
+    } else {
+      return str;
+    }
+  }
+
+  setGradingList(){
+    int present, absent, leave;
+    gradingList.clear();
+    for(var e in dbList){
+      present = 0; absent = 0; leave = 0;
+      for (var e2 in e.children) {
+        if (e2.key.contains(RegExp("Attendance-[0-9]{2}-${gradingMonthYear[1]}-${gradingMonthYear[0]}"))) {
+          if (e2.value.contains("Present")) {
+            present++;
+          } else if (e2.value.contains("Absent")) {
+            absent++;
+          } else if (e2.value.contains("Leave")) {
+            leave++;
+          }
+        }
+      }
+      Grading g = Grading(e.parent, present.toString(), absent.toString(), leave.toString());
+      gradingList.add(g);
+    }
   }
 
   setLeaveApprovalList(){
@@ -135,51 +195,7 @@ class _AdminPageState extends State<AdminPage> {
           ],
         ),
         body: Center(
-          child: Column(
-              children: <Widget>[
-                Flexible(
-                  child: ListView.builder(
-                    itemCount: searchWithDateList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Card(
-                        shadowColor: Colors.grey.shade300,
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            child: Text(searchWithDateList[index].username[0]),
-                          ),
-                          title: Text(
-                            searchWithDateList[index].username,
-                          ),
-                          subtitle: Text(
-                            searchWithDateList[index].date,
-                          ),
-                          // trailing: Text(
-                          //   searchWithDateList[index].attendance,
-                          // ),
-                          trailing: DropdownButton<String>(
-                            value: searchWithDateList[index].attendance,
-                            items: <String>['Present', 'Absent', 'Leave'].map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              searchWithDateList[index].attendance = newValue!;
-                              FirebaseDatabase.instance.ref("UserInfo").child(searchWithDateList[index].username).child("Attendance-${searchWithDateList[index].date}").set(newValue);
-                              setState(() {});
-                            },
-                          ),
-                          onLongPress: () {
-                            _deleteAttendanceDialog(index);
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ]
-          ),
+            child: getViewAttendanceWidget()
         ),
         bottomNavigationBar: getBottomNavigationBar(),
         floatingActionButton: FloatingActionButton(
@@ -218,20 +234,150 @@ class _AdminPageState extends State<AdminPage> {
       Scaffold(
         appBar: AppBar(
           title: const Text('Attendance Management System'),
-        ),
-        body: const Center(
-          child: Text (
-            "Grading",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.calendar_month),
+              onPressed: () async {
+                DateTime dt = DateTime.parse('${gradingMonthYear[0]}-${gradingMonthYear[1]}-01 00:00:00');
+                final selected = await showMonthYearPicker(
+                  context: context,
+                  initialDate: dt,
+                  firstDate: DateTime(2019),
+                  lastDate: DateTime(2023),
+                );
+                if (selected != null) {
+                  setState(() {
+                    gradingMonthYear[0] = selected.year.toString();
+                    gradingMonthYear[1] = zeros(selected.month.toString());
+                    // showToast(zeros(selected.month.toString()) + " " + selected.year.toString());
+                  });
+                }
+              },
             ),
-          ),
+          ],
+        ),
+        body: Center(
+          child: getGradingWidget(),
         ),
         bottomNavigationBar: getBottomNavigationBar(),
       ),
+
+
+
     ];
     return widgetOptions[_selectedIndex];
+  }
+
+
+  getGradingWidget(){
+    if (gradingList.isEmpty){
+      return const Text (
+        "Nothing to show",
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    }
+    else {
+      return Column(
+          children: <Widget>[
+            Flexible(
+              child: ListView.builder(
+                itemCount: gradingList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Card(
+                    shadowColor: Colors.grey.shade300,
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        child: Text(gradingList[index].username[0]),
+                      ),
+                      title: Text(
+                        gradingList[index].username,
+                      ),
+                      subtitle: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        // crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            "Present: ${gradingList[index].present}",
+                          ),
+                          Text(
+                            "Absent: ${gradingList[index].absent}",
+                          ),
+                          Text(
+                            "Leave: ${gradingList[index].leave}",
+                          ),
+                        ],
+                      ),
+                      trailing: Text("Grade: ${gradingList[index].grade}"),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ]
+      );
+    }
+  }
+
+  getViewAttendanceWidget(){
+    if (searchWithDateList.isEmpty){
+      return const Text (
+        "Nothing to show",
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    }
+    else {
+      return Column(
+          children: <Widget>[
+            Flexible(
+              child: ListView.builder(
+                itemCount: searchWithDateList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Card(
+                    shadowColor: Colors.grey.shade300,
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        child: Text(searchWithDateList[index].username[0]),
+                      ),
+                      title: Text(
+                        searchWithDateList[index].username,
+                      ),
+                      subtitle: Text(
+                        searchWithDateList[index].date,
+                      ),
+                      // trailing: Text(
+                      //   searchWithDateList[index].attendance,
+                      // ),
+                      trailing: DropdownButton<String>(
+                        value: searchWithDateList[index].attendance,
+                        items: <String>['Present', 'Absent', 'Leave'].map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          searchWithDateList[index].attendance = newValue!;
+                          FirebaseDatabase.instance.ref("UserInfo").child(searchWithDateList[index].username).child("Attendance-${searchWithDateList[index].date}").set(newValue);
+                          setState(() {});
+                        },
+                      ),
+                      onLongPress: () {
+                        _deleteAttendanceDialog(index);
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ]
+      );
+    }
   }
 
   getLeaveApprovalWidget(){
@@ -262,8 +408,8 @@ class _AdminPageState extends State<AdminPage> {
                         child: Text(leaveApprovalList[index].username),
                       ),
                       subtitle: Column (
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Padding(
                               padding: const EdgeInsets.only(top: 10.0),
@@ -286,7 +432,7 @@ class _AdminPageState extends State<AdminPage> {
                                 leaveApprovalList.removeAt(index);
                               });
                               showToast("Leave Rejected");
-                            }, icon: const Icon(Icons.not_interested)),
+                            }, icon: const Icon(Icons.close)),
                             IconButton(onPressed: () {
                               FirebaseDatabase.instance.ref("UserInfo").child(leaveApprovalList[index].username).child("LeaveApproval-${leaveApprovalList[index].date}").remove();
                               FirebaseDatabase.instance.ref("UserInfo").child(leaveApprovalList[index].username).child("LeaveAccepted-${leaveApprovalList[index].date}").set(leaveApprovalList[index].reason);
@@ -462,7 +608,6 @@ class _AdminPageState extends State<AdminPage> {
   Future<void> _deleteAttendanceDialog(int index) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Delete Attendance'),
