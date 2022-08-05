@@ -260,6 +260,7 @@ class _UserPageState extends State<UserPage> {
         firstDate: DateTime(2015, 8),
         lastDate: DateTime(2101));
     if (picked != null) {
+      // ignore: use_build_context_synchronously
       _displayTextInputDialog(context);
       // showDialog(
       //     context: context,

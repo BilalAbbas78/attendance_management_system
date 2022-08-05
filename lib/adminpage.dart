@@ -35,8 +35,10 @@ class Database {
 }
 
 class LeaveRequest {
-  String username, date, reason;
-  LeaveRequest(this.username, this.date, this.reason);
+  String username, date, reason, sortedDate = "";
+  LeaveRequest(this.username, this.date, this.reason){
+    sortedDate = date.split("-").reversed.join("-");
+  }
 }
 
 class Grading {
@@ -196,6 +198,7 @@ class _AdminPageState extends State<AdminPage> {
         }
       }
     }
+    leaveRequestList.sort((a, b) => a.sortedDate.compareTo(b.sortedDate));
     // leaveRequestList.add(LeaveRequest('user1', '2020-01-01', 'reason1'));
   }
 
