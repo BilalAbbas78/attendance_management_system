@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:fluttertoast/fluttertoast.dart';
 
 void main() async{
@@ -67,8 +68,10 @@ class _AdminPageState extends State<AdminPage> {
   // static List<String> list = <String>[];
 
   static List<UserAttendance> userAttendanceList = <UserAttendance>[];
-
+  DateTime selectedDateAddAttendance = DateTime.now();
+  DateTime selectedDateFilterAttendance = DateTime.now();
   static List<Database> dbList = [];
+  static List<String> attendanceList = ['Present', 'Absent', 'Leave'];
 
   // static String newValue = "Present";
 
@@ -127,7 +130,7 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   getWidget(){
-    final List<Widget> _widgetOptions = <Widget>[
+    final List<Widget> widgetOptions = <Widget>[
       Column(
           children: <Widget>[
             Flexible(
@@ -182,13 +185,15 @@ class _AdminPageState extends State<AdminPage> {
         style: optionStyle,
       ),
     ];
-    return _widgetOptions[_selectedIndex];
+    return widgetOptions[_selectedIndex];
   }
 
 
   @override
   Widget build(BuildContext context) {
     // DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo");
+
+
 
     return FutureBuilder<bool>(
         future: initialize(),
@@ -235,8 +240,15 @@ class _AdminPageState extends State<AdminPage> {
                 tooltip: 'Add Attendance',
                 onPressed: () {
                   // Respond to button press
-                  showToast("Add Attendance Pressed");
-                  setupAlertDialoadContainer();
+                  // showToast("Add Attendance Pressed");
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Select one Student'),
+                          content: addAttendanceStudentsListDialog(),
+                        );
+                      });
                 },
                 child: const Icon(Icons.add),
               ),
@@ -255,20 +267,73 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  Widget setupAlertDialoadContainer() {
-    return Container(
+  Widget addAttendanceStudentsListDialog() {
+    return SizedBox(
       height: 300.0, // Change as per your requirement
       width: 300.0, // Change as per your requirement
       child: ListView.builder(
         shrinkWrap: true,
-        itemCount: 5,
+        itemCount: dbList.length,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
-            title: Text('Gujarat, India'),
+            title: Text(dbList[index].parent),
+            onTap: () {
+              // Navigator.of(context).pop();
+              _selectDate(context);
+              showToast(dbList[index].parent);
+            },
           );
         },
       ),
     );
+  }
+
+  Widget addAttendanceListDialog() {
+    return SizedBox(
+      height: 300.0, // Change as per your requirement
+      width: 300.0, // Change as per your requirement
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: 3,
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            title: Text(attendanceList[index]),
+            onTap: () {
+              // _selectDate(context);
+              showToast(attendanceList[index]);
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },
+          );
+        },
+      ),
+    );
+  }
+
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDateAddAttendance,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDateAddAttendance) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+
+            return AlertDialog(
+              title: const Text('Select Attendance'),
+              content: addAttendanceListDialog(),
+            );
+
+          });
+      setState(() {
+        selectedDateAddAttendance = picked;
+        showToast("${selectedDateAddAttendance.toLocal()}".split(' ')[0]);
+
+      });
+    }
   }
 
   Future<void> _deleteAttendanceDialog(int index) async {
@@ -316,17 +381,6 @@ class _AdminPageState extends State<AdminPage> {
         backgroundColor: Colors.red,
         textColor: Colors.yellow
     );
-  }
-
-
-  int getMaxLength(List<Database> db){
-    int count = 0;
-    for (var i in db){
-      for (var j in i.children){
-        count++;
-      }
-    }
-    return count;
   }
 
   void setUserAttendance(List<Database> list, List<UserAttendance> userAttendanceList){
