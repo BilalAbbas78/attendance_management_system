@@ -101,6 +101,27 @@ class _AdminPageState extends State<AdminPage> {
 
   int _selectedIndex = 0;
 
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+        future: initialize(),
+        builder: (context, AsyncSnapshot<bool> snapshot) {
+          if (snapshot.hasData) {
+            return getWidget();
+          } else {
+            return Scaffold(
+                appBar: AppBar(
+                  title: const Text('Attendance Management System'),
+                ),
+                body: const Center(
+                    child: CircularProgressIndicator()
+                )
+            );
+          }
+        }
+    );
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -478,32 +499,7 @@ class _AdminPageState extends State<AdminPage> {
   }
 
 
-  @override
-  Widget build(BuildContext context) {
-    // DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo");
 
-
-
-    return FutureBuilder<bool>(
-        future: initialize(),
-        builder: (context, AsyncSnapshot<bool> snapshot) {
-          if (snapshot.hasData) {
-            return getWidget();
-
-
-          } else {
-            return Scaffold(
-                appBar: AppBar(
-                  title: const Text('Attendance Management System'),
-                ),
-                body: const Center(
-                    child: CircularProgressIndicator()
-                )
-            );
-          }
-        }
-    );
-  }
 
   void searchWithDate(String date) {
     searchWithDateList.clear();
