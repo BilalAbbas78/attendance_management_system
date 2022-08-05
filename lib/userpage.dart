@@ -226,11 +226,11 @@ class _UserPageState extends State<UserPage> {
                 });
               },
               controller: _textFieldController,
-              decoration: InputDecoration(hintText: "Enter Reason for Leave"),
+              decoration: const InputDecoration(hintText: "Enter Reason for Leave"),
             ),
             actions: <Widget>[
               TextButton(
-                child: Text('SUBMIT'),
+                child: const Text('SUBMIT'),
                 onPressed: () {
                   if (_textFieldController.text.isNotEmpty) {
                     FirebaseDatabase.instance
