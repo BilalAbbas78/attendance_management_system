@@ -68,12 +68,13 @@ class _AdminPageState extends State<AdminPage> {
 
   // static List<String> list = <String>[];
 
-  static List<UserAttendance> userAttendanceList = <UserAttendance>[];
   DateTime selectedDateAddAttendance = DateTime.now();
   DateTime selectedDateFilterAttendance = DateTime.now();
   static List<Database> dbList = [];
+  static List<UserAttendance> userAttendanceList = <UserAttendance>[];
   static List<String> attendanceList = ['Present', 'Absent', 'Leave'];
   static List<String> addAttendanceInfo = ['', '', ''];
+  static List<UserAttendance> searchWithDateList = <UserAttendance>[];
 
   // static String newValue = "Present";
 
@@ -128,6 +129,10 @@ class _AdminPageState extends State<AdminPage> {
 
     setUserAttendance(dbList, userAttendanceList);
 
+    String formatDate(DateTime date) => DateFormat("dd-MM-yyyy").format(date);
+
+    searchWithDate(formatDate(selectedDateFilterAttendance));
+
     return true;
   }
 
@@ -137,25 +142,25 @@ class _AdminPageState extends State<AdminPage> {
           children: <Widget>[
             Flexible(
               child: ListView.builder(
-                itemCount: userAttendanceList.length,
+                itemCount: searchWithDateList.length,
                 itemBuilder: (BuildContext context, int index) {
                   return Card(
                     shadowColor: Colors.grey.shade300,
                     child: ListTile(
                       leading: CircleAvatar(
-                        child: Text(userAttendanceList[index].username[0]),
+                        child: Text(searchWithDateList[index].username[0]),
                       ),
                       title: Text(
-                        userAttendanceList[index].username,
+                        searchWithDateList[index].username,
                       ),
                       subtitle: Text(
-                        userAttendanceList[index].date,
+                        searchWithDateList[index].date,
                       ),
                       // trailing: Text(
-                      //   userAttendanceList[index].attendance,
+                      //   searchWithDateList[index].attendance,
                       // ),
                       trailing: DropdownButton<String>(
-                        value: userAttendanceList[index].attendance,
+                        value: searchWithDateList[index].attendance,
                         items: <String>['Present', 'Absent', 'Leave'].map((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
@@ -163,8 +168,8 @@ class _AdminPageState extends State<AdminPage> {
                           );
                         }).toList(),
                         onChanged: (String? newValue) {
-                          userAttendanceList[index].attendance = newValue!;
-                          FirebaseDatabase.instance.ref("UserInfo").child(userAttendanceList[index].username).child("Attendance-${userAttendanceList[index].date}").set(newValue);
+                          searchWithDateList[index].attendance = newValue!;
+                          FirebaseDatabase.instance.ref("UserInfo").child(searchWithDateList[index].username).child("Attendance-${searchWithDateList[index].date}").set(newValue);
                           setState(() {});
                         },
                       ),
@@ -208,7 +213,8 @@ class _AdminPageState extends State<AdminPage> {
                   IconButton(
                     icon: const Icon(Icons.calendar_month),
                     onPressed: () {
-                      showToast("Calender clicked");
+                      _selectDateSearchAttendance(context);
+                      // showToast("Calender clicked");
                     },
                   ),
                   // add more IconButton
@@ -260,12 +266,22 @@ class _AdminPageState extends State<AdminPage> {
                   title: const Text('Attendance Management System'),
                 ),
                 body: const Center(
-                  child: CircularProgressIndicator()
+                    child: CircularProgressIndicator()
                 )
             );
           }
         }
     );
+  }
+
+  void searchWithDate(String date) {
+    searchWithDateList.clear();
+    for(var e in userAttendanceList){
+      if(e.date == date){
+        searchWithDateList.add(e);
+      }
+    }
+
   }
 
   Widget addAttendanceStudentsListDialog() {
@@ -281,7 +297,7 @@ class _AdminPageState extends State<AdminPage> {
             onTap: () {
               // Navigator.of(context).pop();
               addAttendanceInfo[0] = dbList[index].parent;
-              _selectDate(context);
+              _selectDateAddAttendance(context);
             },
           );
         },
@@ -304,7 +320,10 @@ class _AdminPageState extends State<AdminPage> {
               addAttendanceInfo[2] = attendanceList[index];
               FirebaseDatabase.instance.ref("UserInfo").child(addAttendanceInfo[0]).child("Attendance-${addAttendanceInfo[1]}").set(addAttendanceInfo[2]);
               showToast("Attendance Added");
-              setState(() {});
+              selectedDateFilterAttendance = selectedDateAddAttendance;
+              // searchWithDate(addAttendanceInfo[1]);
+              setState(() {
+              });
               Navigator.of(context).pop();
               Navigator.of(context).pop();
             },
@@ -315,13 +334,13 @@ class _AdminPageState extends State<AdminPage> {
   }
 
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDateAddAttendance(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: selectedDateAddAttendance,
         firstDate: DateTime(2015, 8),
         lastDate: DateTime(2101));
-    if (picked != null && picked != selectedDateAddAttendance) {
+    if (picked != null) {
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -340,6 +359,21 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
+  Future<void> _selectDateSearchAttendance(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDateFilterAttendance,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null) {
+      setState(() {
+        selectedDateFilterAttendance = picked;
+        String formatDate(DateTime date) => DateFormat("dd-MM-yyyy").format(date);
+        searchWithDate(formatDate(picked));
+      });
+    }
+  }
+
   Future<void> _deleteAttendanceDialog(int index) async {
     return showDialog<void>(
       context: context,
@@ -350,7 +384,7 @@ class _AdminPageState extends State<AdminPage> {
           content: SingleChildScrollView(
             child: ListBody(
               children: const <Widget>[
-                Text('Do you want to delete this attendance?'),
+                Text('Are you sure want to delete this attendance?'),
               ],
             ),
           ),
@@ -362,10 +396,10 @@ class _AdminPageState extends State<AdminPage> {
               },
             ),
             TextButton(
-              child: const Text('Yes'),
+              child: const Text('Delete'),
               onPressed: () {
-                FirebaseDatabase.instance.ref("UserInfo").child(userAttendanceList[index].username).child("Attendance-${userAttendanceList[index].date}").remove();
-                userAttendanceList.removeAt(index);
+                FirebaseDatabase.instance.ref("UserInfo").child(searchWithDateList[index].username).child("Attendance-${searchWithDateList[index].date}").remove();
+                searchWithDateList.removeAt(index);
                 setState(() {});
                 showToast("Attendance Deleted");
                 Navigator.of(context).pop();
