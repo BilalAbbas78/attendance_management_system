@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,6 +73,7 @@ class _AdminPageState extends State<AdminPage> {
   DateTime selectedDateFilterAttendance = DateTime.now();
   static List<Database> dbList = [];
   static List<String> attendanceList = ['Present', 'Absent', 'Leave'];
+  static List<String> addAttendanceInfo = ['', '', ''];
 
   // static String newValue = "Present";
 
@@ -240,7 +242,6 @@ class _AdminPageState extends State<AdminPage> {
                 tooltip: 'Add Attendance',
                 onPressed: () {
                   // Respond to button press
-                  // showToast("Add Attendance Pressed");
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
@@ -279,8 +280,8 @@ class _AdminPageState extends State<AdminPage> {
             title: Text(dbList[index].parent),
             onTap: () {
               // Navigator.of(context).pop();
+              addAttendanceInfo[0] = dbList[index].parent;
               _selectDate(context);
-              showToast(dbList[index].parent);
             },
           );
         },
@@ -300,7 +301,10 @@ class _AdminPageState extends State<AdminPage> {
             title: Text(attendanceList[index]),
             onTap: () {
               // _selectDate(context);
-              showToast(attendanceList[index]);
+              addAttendanceInfo[2] = attendanceList[index];
+              FirebaseDatabase.instance.ref("UserInfo").child(addAttendanceInfo[0]).child("Attendance-${addAttendanceInfo[1]}").set(addAttendanceInfo[2]);
+              showToast("Attendance Added");
+              setState(() {});
               Navigator.of(context).pop();
               Navigator.of(context).pop();
             },
@@ -330,8 +334,8 @@ class _AdminPageState extends State<AdminPage> {
           });
       setState(() {
         selectedDateAddAttendance = picked;
-        showToast("${selectedDateAddAttendance.toLocal()}".split(' ')[0]);
-
+        String formatDate(DateTime date) => DateFormat("dd-MM-yyyy").format(date);
+        addAttendanceInfo[1] = formatDate(picked);
       });
     }
   }
