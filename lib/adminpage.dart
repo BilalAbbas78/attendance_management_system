@@ -138,58 +138,180 @@ class _AdminPageState extends State<AdminPage> {
 
   getWidget(){
     final List<Widget> widgetOptions = <Widget>[
-      Column(
-          children: <Widget>[
-            Flexible(
-              child: ListView.builder(
-                itemCount: searchWithDateList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Card(
-                    shadowColor: Colors.grey.shade300,
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        child: Text(searchWithDateList[index].username[0]),
-                      ),
-                      title: Text(
-                        searchWithDateList[index].username,
-                      ),
-                      subtitle: Text(
-                        searchWithDateList[index].date,
-                      ),
-                      // trailing: Text(
-                      //   searchWithDateList[index].attendance,
-                      // ),
-                      trailing: DropdownButton<String>(
-                        value: searchWithDateList[index].attendance,
-                        items: <String>['Present', 'Absent', 'Leave'].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          searchWithDateList[index].attendance = newValue!;
-                          FirebaseDatabase.instance.ref("UserInfo").child(searchWithDateList[index].username).child("Attendance-${searchWithDateList[index].date}").set(newValue);
-                          setState(() {});
-                        },
-                      ),
-                      onLongPress: () {
-                        _deleteAttendanceDialog(index);
-                      },
-                    ),
+      Scaffold(
+        appBar: AppBar(
+          title: const Text('Attendance Management System'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.calendar_month),
+              onPressed: () {
+                _selectDateSearchAttendance(context);
+                // showToast("Calender clicked");
+              },
+            ),
+            // add more IconButton
+          ],
+        ),
+        body: Center(
+          child:
+          Column(
+              children: <Widget>[
+                Flexible(
+                  child: ListView.builder(
+                    itemCount: searchWithDateList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Card(
+                        shadowColor: Colors.grey.shade300,
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            child: Text(searchWithDateList[index].username[0]),
+                          ),
+                          title: Text(
+                            searchWithDateList[index].username,
+                          ),
+                          subtitle: Text(
+                            searchWithDateList[index].date,
+                          ),
+                          // trailing: Text(
+                          //   searchWithDateList[index].attendance,
+                          // ),
+                          trailing: DropdownButton<String>(
+                            value: searchWithDateList[index].attendance,
+                            items: <String>['Present', 'Absent', 'Leave'].map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              searchWithDateList[index].attendance = newValue!;
+                              FirebaseDatabase.instance.ref("UserInfo").child(searchWithDateList[index].username).child("Attendance-${searchWithDateList[index].date}").set(newValue);
+                              setState(() {});
+                            },
+                          ),
+                          onLongPress: () {
+                            _deleteAttendanceDialog(index);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ]
+          ),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'View Attendance',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.approval),
+              label: 'Leave Approvals',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.grading),
+              label: 'Grading',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.amber[800],
+          onTap: _onItemTapped,
+        ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: const Color(0xff03dac6),
+          foregroundColor: Colors.black,
+          tooltip: 'Add Attendance',
+          onPressed: () {
+            // Respond to button press
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Select one Student'),
+                    content: addAttendanceStudentsListDialog(),
                   );
-                },
+                });
+          },
+          child: const Icon(Icons.add),
+        ),
+      ),
+
+
+
+
+      Scaffold(
+        appBar: AppBar(
+          title: const Text('Attendance Management System'),
+        ),
+        body: const Center(
+          child:
+            Text (
+              "Welcome to Attendance Management System",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ]
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'View Attendance',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.approval),
+              label: 'Leave Approvals',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.grading),
+              label: 'Grading',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.amber[800],
+          onTap: _onItemTapped,
+        ),
       ),
-      const Text(
-        'Index 1: Leave Approvals',
-        style: optionStyle,
-      ),
-      const Text(
-        'Index 2: Grading',
-        style: optionStyle,
+
+
+
+
+      Scaffold(
+        appBar: AppBar(
+          title: const Text('Attendance Management System'),
+        ),
+        body: const Center(
+          child:
+          Text (
+            "Grading",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'View Attendance',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.approval),
+              label: 'Leave Approvals',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.grading),
+              label: 'Grading',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.amber[800],
+          onTap: _onItemTapped,
+        ),
       ),
     ];
     return widgetOptions[_selectedIndex];
@@ -206,60 +328,9 @@ class _AdminPageState extends State<AdminPage> {
         future: initialize(),
         builder: (context, AsyncSnapshot<bool> snapshot) {
           if (snapshot.hasData) {
-            return Scaffold(
-              appBar: AppBar(
-                title: const Text('Attendance Management System'),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.calendar_month),
-                    onPressed: () {
-                      _selectDateSearchAttendance(context);
-                      // showToast("Calender clicked");
-                    },
-                  ),
-                  // add more IconButton
-                ],
-              ),
-              body: Center(
-                child: getWidget(),
-              ),
-              bottomNavigationBar: BottomNavigationBar(
-                items: const <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.person),
-                    label: 'View Attendance',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.approval),
-                    label: 'Leave Approvals',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.grading),
-                    label: 'Grading',
-                  ),
-                ],
-                currentIndex: _selectedIndex,
-                selectedItemColor: Colors.amber[800],
-                onTap: _onItemTapped,
-              ),
-              floatingActionButton: FloatingActionButton(
-                backgroundColor: const Color(0xff03dac6),
-                foregroundColor: Colors.black,
-                tooltip: 'Add Attendance',
-                onPressed: () {
-                  // Respond to button press
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Select one Student'),
-                          content: addAttendanceStudentsListDialog(),
-                        );
-                      });
-                },
-                child: const Icon(Icons.add),
-              ),
-            );
+            return getWidget();
+
+
           } else {
             return Scaffold(
                 appBar: AppBar(
