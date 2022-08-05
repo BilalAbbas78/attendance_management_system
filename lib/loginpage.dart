@@ -1,6 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:attendance_management_system/adminpage.dart';
+import 'package:attendance_management_system/userpage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,6 +12,7 @@ class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _LoginPageState createState() => _LoginPageState();
 }
 
@@ -49,8 +54,26 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController txtUsername = TextEditingController();
   TextEditingController txtPassword = TextEditingController();
 
+  static String todayDate = DateTime.now().toString().substring(0, 10).split("-").reversed.join("-");
+
+  Future<bool> initialize() async {
+    final database = await FirebaseDatabase.instance
+        .ref()
+        .child("UserInfo")
+        .once();
+    for (var element in database.snapshot.children) {
+      if (!element.child("Attendance-$todayDate").exists) {
+        FirebaseDatabase.instance.ref().child("UserInfo").child(element.key.toString()).child("Attendance-$todayDate").set("Absent");
+      }
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
+    debugPrint("LoginPage build");
+    initialize();
+
     return Theme(
       data: ThemeData(
           colorScheme: darkColorScheme,
@@ -244,10 +267,11 @@ class _LoginPageState extends State<LoginPage> {
     DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo/${txtUsername.text}");
     var sp = await ref.once();
 
-    if (sp.snapshot.child("password").value == txtPassword.text) {
-      showToast("Correct Password");
+    if (txtUsername.text == "admin" && txtPassword.text == "admin") {
       gotoAdminPage(context);
-
+    }
+    else if (sp.snapshot.child("password").value == txtPassword.text) {
+      gotoUserPage(context);
     } else {
       showToast("Incorrect Password");
     }
@@ -256,6 +280,11 @@ class _LoginPageState extends State<LoginPage> {
   void gotoAdminPage(BuildContext context) {
     Navigator.push(context,
       MaterialPageRoute(builder: (context) => const AdminPage()),);
+  }
+
+  void gotoUserPage(BuildContext context) {
+    Navigator.push(context,
+      MaterialPageRoute(builder: (context) => UserPage(strUsername: txtUsername.text)));
   }
 
   void showToast(String str){

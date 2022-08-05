@@ -38,26 +38,34 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: _title,
-      home: UserPage(),
+      home: UserPage(strUsername: null,),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class UserPage extends StatefulWidget {
-  const UserPage({Key? key}) : super(key: key);
+  // ignore: prefer_typing_uninitialized_variables
+  final strUsername;
+  static String myUsername = "";
+  const UserPage({Key? key, @required this.strUsername}) : super(key: key);
 
   @override
-  State<UserPage> createState() => _UserPageState();
+  // ignore: no_logic_in_create_state
+  State<UserPage> createState() {
+    myUsername = strUsername;
+    return _UserPageState();
+  }
 }
 
 class _UserPageState extends State<UserPage> {
+
 
   static List<Database> dbList = [];
   static List<UserAttendance> userAttendanceList = [];
   static List<UserLeaveRequest> userLeaveRequestList = [];
   int _selectedIndex = 0;
-  String username = "Bilal";
+  String username =   UserPage.myUsername;
   static String todayDateReverse = DateTime.now().toString().substring(0, 10);
   static String todayDate = todayDateReverse.split("-").reversed.join("-");
   DateTime selectedDateAddAttendance = DateTime.now();
@@ -77,7 +85,11 @@ class _UserPageState extends State<UserPage> {
           } else {
             return Scaffold(
                 appBar: AppBar(
-                  title: const Text('Attendance Management System'),
+                  title: const Text('Attendance Management System',
+                    style: TextStyle(
+                      fontSize: 17,
+                    ),
+                  ),
                 ),
                 body: const Center(
                     child: CircularProgressIndicator()
@@ -166,17 +178,26 @@ class _UserPageState extends State<UserPage> {
     final List<Widget> widgetOptions = <Widget>[
       Scaffold(
         appBar: AppBar(
-          title: const Text('Attendance Management System'),
+          title: const Text('Attendance Management System',
+            style: TextStyle(
+              fontSize: 17,
+            ),
+          ),
           actions: <Widget>[
-            PopupMenuButton<String>(
-              onSelected: handleClick,
-              itemBuilder: (BuildContext context) {
-                return {'Mark Attendance', 'Logout'}.map((String choice) {
-                  return PopupMenuItem<String>(
-                    value: choice,
-                    child: Text(choice),
-                  );
-                }).toList();
+            IconButton(
+              icon: const Icon(Icons.person_add),
+              onPressed: () {
+                FirebaseDatabase.instance.ref().child("UserInfo").child(username).child("Attendance-$todayDate").get().then((value) {
+                  if (value.value == "Present") {
+                    showToast("Attendance already marked");
+                  }
+                  else {
+                    FirebaseDatabase.instance.ref().child("UserInfo").child(username).child("Attendance-$todayDate").set("Present");
+                    showToast("Attendance marked");
+                  }
+                },
+                );
+                setState(() {});
               },
             ),
           ],
@@ -191,7 +212,11 @@ class _UserPageState extends State<UserPage> {
 
       Scaffold(
         appBar: AppBar(
-          title: const Text('Attendance Management System'),
+          title: const Text('Attendance Management System',
+            style: TextStyle(
+              fontSize: 17,
+            ),
+          ),
         ),
         body: Center(
           child: getRequestLeaveWidget(),
@@ -389,9 +414,9 @@ class _UserPageState extends State<UserPage> {
                         title: Text(userAttendanceList[index].date),
                         trailing: Text(userAttendanceList[index].attendance,
                           style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     );
@@ -405,25 +430,25 @@ class _UserPageState extends State<UserPage> {
     }
   }
 
-  void handleClick(String value) {
-    switch (value) {
-      case 'Mark Attendance':
-        FirebaseDatabase.instance.ref().child("UserInfo").child(username).child("Attendance-$todayDate").get().then((value) {
-          if (value.value == "Present") {
-            showToast("Attendance already marked");
-          }
-          else {
-            FirebaseDatabase.instance.ref().child("UserInfo").child(username).child("Attendance-$todayDate").set("Present");
-            showToast("Attendance marked");
-          }
-        });
-        break;
-      case 'Logout':
-        showToast('Logout');
-        break;
-    }
-    setState(() {});
-  }
+  // void handleClick(String value) {
+  //   switch (value) {
+  //     case 'Mark Attendance':
+  //       FirebaseDatabase.instance.ref().child("UserInfo").child(username).child("Attendance-$todayDate").get().then((value) {
+  //         if (value.value == "Present") {
+  //           showToast("Attendance already marked");
+  //         }
+  //         else {
+  //           FirebaseDatabase.instance.ref().child("UserInfo").child(username).child("Attendance-$todayDate").set("Present");
+  //           showToast("Attendance marked");
+  //         }
+  //       });
+  //       break;
+  //     case 'Logout':
+  //       showToast('Logout');
+  //       break;
+  //   }
+  //   setState(() {});
+  // }
 
   showToast(String message) {
     Fluttertoast.showToast(

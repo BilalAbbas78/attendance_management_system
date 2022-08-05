@@ -113,8 +113,12 @@ class _AdminPageState extends State<AdminPage> {
           } else {
             return Scaffold(
                 appBar: AppBar(
-                  title: const Text('Attendance Management System'),
-                ),
+                  title: const Text('Attendance Management System',
+                    style: TextStyle(
+                      fontSize: 17,
+                    ),
+                    )
+                  ),
                 body: const Center(
                     child: CircularProgressIndicator()
                 )
@@ -206,7 +210,12 @@ class _AdminPageState extends State<AdminPage> {
     final List<Widget> widgetOptions = <Widget>[
       Scaffold(
         appBar: AppBar(
-          title: const Text('Attendance Management System'),
+          title: const Text('Attendance Management System',
+            style: TextStyle(
+              fontSize: 17,
+            ),
+          ),
+
           actions: [
             IconButton(
               icon: const Icon(Icons.calendar_month),
@@ -244,7 +253,11 @@ class _AdminPageState extends State<AdminPage> {
 
       Scaffold(
         appBar: AppBar(
-          title: const Text('Attendance Management System'),
+          title: const Text('Attendance Management System',
+            style: TextStyle(
+              fontSize: 17,
+            ),
+          ),
         ),
         body: Center(
           child: getLeaveRequestWidget(),
@@ -257,7 +270,11 @@ class _AdminPageState extends State<AdminPage> {
 
       Scaffold(
         appBar: AppBar(
-          title: const Text('Attendance Management System'),
+          title: const Text('Attendance Management System',
+            style: TextStyle(
+              fontSize: 17,
+            ),
+          ),
           actions: [
             IconButton(
               icon: const Icon(Icons.calendar_month),
