@@ -220,8 +220,7 @@ class _AdminPageState extends State<AdminPage> {
           title: const Text('Attendance Management System'),
         ),
         body: const Center(
-          child:
-          Text (
+          child: Text (
             "Grading",
             style: TextStyle(
               fontSize: 20,
@@ -237,7 +236,13 @@ class _AdminPageState extends State<AdminPage> {
 
   getLeaveApprovalWidget(){
     if (leaveApprovalList.isEmpty){
-      return const Text("No Leave Approval");
+      return const Text (
+        "No leave approval pending",
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      );
     }
     else {
       return Column(
@@ -252,15 +257,22 @@ class _AdminPageState extends State<AdminPage> {
                       leading: CircleAvatar(
                         child: Text(leaveApprovalList[index].username[0]),
                       ),
-                      title: Text(
-                        leaveApprovalList[index].username,
+                      title: Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: Text(leaveApprovalList[index].username),
                       ),
                       subtitle: Column (
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Text(leaveApprovalList[index].date),
-                            Text(leaveApprovalList[index].reason),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10.0),
+                              child: Text(leaveApprovalList[index].date),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                              child: Text(leaveApprovalList[index].reason),
+                            ),
                           ]
                       ),
                       trailing: SizedBox(
