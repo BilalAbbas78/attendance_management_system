@@ -255,11 +255,37 @@ class _AdminPageState extends State<AdminPage> {
                       title: Text(
                         leaveApprovalList[index].username,
                       ),
-                      subtitle: Text(
-                        leaveApprovalList[index].date,
+                      subtitle: Column (
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(leaveApprovalList[index].date),
+                            Text(leaveApprovalList[index].reason),
+                          ]
                       ),
-                      trailing: Text (
-                        leaveApprovalList[index].reason,
+                      trailing: SizedBox(
+                        width: 100,
+                        child: Row(
+                          children: [
+                            IconButton(onPressed: () {
+                              FirebaseDatabase.instance.ref("UserInfo").child(leaveApprovalList[index].username).child("LeaveApproval-${leaveApprovalList[index].date}").remove();
+                              FirebaseDatabase.instance.ref("UserInfo").child(leaveApprovalList[index].username).child("LeaveRejected-${leaveApprovalList[index].date}").set(leaveApprovalList[index].reason);
+                              setState(() {
+                                leaveApprovalList.removeAt(index);
+                              });
+                              showToast("Leave Rejected");
+                            }, icon: const Icon(Icons.not_interested)),
+                            IconButton(onPressed: () {
+                              FirebaseDatabase.instance.ref("UserInfo").child(leaveApprovalList[index].username).child("LeaveApproval-${leaveApprovalList[index].date}").remove();
+                              FirebaseDatabase.instance.ref("UserInfo").child(leaveApprovalList[index].username).child("LeaveAccepted-${leaveApprovalList[index].date}").set(leaveApprovalList[index].reason);
+                              FirebaseDatabase.instance.ref("UserInfo").child(leaveApprovalList[index].username).child("Attendance-${leaveApprovalList[index].date}").set("Leave");
+                              setState(() {
+                                leaveApprovalList.removeAt(index);
+                              });
+                              showToast("Leave Approved");
+                            }, icon: const Icon(Icons.done)),
+                          ],
+                        ),
                       ),
                     ),
                   );
