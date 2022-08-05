@@ -29,14 +29,10 @@ class Database {
   Database(this.parent);
 }
 
-
-
-// class UserAttendance {
-//   String username;
-//   String date;
-//   String attendance;
-//   UserAttendance(this.username, this.date, this.attendance);
-// }
+class LeaveApproval {
+  String username, date, reason;
+  LeaveApproval(this.username, this.date, this.reason);
+}
 
 
 
@@ -64,32 +60,16 @@ class AdminPage extends StatefulWidget {
 
 class _AdminPageState extends State<AdminPage> {
 
-  // static var list = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-
-  // static List<String> list = <String>[];
-
   DateTime selectedDateAddAttendance = DateTime.now();
   DateTime selectedDateFilterAttendance = DateTime.now();
   static List<Database> dbList = [];
-  static List<UserAttendance> userAttendanceList = <UserAttendance>[];
+  static List<UserAttendance> userAttendanceList = [];
   static List<String> attendanceList = ['Present', 'Absent', 'Leave'];
   static List<String> addAttendanceInfo = ['', '', ''];
-  static List<UserAttendance> searchWithDateList = <UserAttendance>[];
+  static List<UserAttendance> searchWithDateList = [];
+  static List<LeaveApproval> leaveApprovalList = [];
 
-  // static String newValue = "Present";
-
-
-
-
-  // List<Shop> itemsShop = [];
-  // Shop itemShop = Shop("A", "B", "C", "D", "E");
-  // DatabaseReference itemRefShop = FirebaseDatabase.instance.reference().child('UserInfo');
-
-  // final db = FirebaseFirestore.instance;
   int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-  TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-
 
   void _onItemTapped(int index) {
     setState(() {
@@ -102,11 +82,6 @@ class _AdminPageState extends State<AdminPage> {
         .ref()
         .child("UserInfo")
         .once();
-
-    // debugPrint(database.snapshot.value.toString());
-
-    // debugPrint(database.toString());
-    // list.clear();
 
     dbList.clear();
 
@@ -121,19 +96,26 @@ class _AdminPageState extends State<AdminPage> {
       dbList.add(dbUser);
     }
 
-    // for(var e in dbList){
-    //   for (var e2 in e.children) {
-    //     debugPrint("${e.parent} ${e2.key} ${e2.value}");
-    //   }
-    // }
-
     setUserAttendance(dbList, userAttendanceList);
+    setLeaveApprovalList();
 
     String formatDate(DateTime date) => DateFormat("dd-MM-yyyy").format(date);
 
     searchWithDate(formatDate(selectedDateFilterAttendance));
 
     return true;
+  }
+
+  setLeaveApprovalList(){
+    leaveApprovalList.clear();
+    for(var e in dbList){
+      for (var e2 in e.children) {
+        if (e2.key.contains("LeaveApproval-")) {
+          leaveApprovalList.add(LeaveApproval(e.parent, e2.key.replaceFirst("LeaveApproval-", ""), e2.value));
+        }
+      }
+    }
+    // leaveApprovalList.add(LeaveApproval('user1', '2020-01-01', 'reason1'));
   }
 
   getWidget(){
@@ -153,8 +135,7 @@ class _AdminPageState extends State<AdminPage> {
           ],
         ),
         body: Center(
-          child:
-          Column(
+          child: Column(
               children: <Widget>[
                 Flexible(
                   child: ListView.builder(
@@ -200,25 +181,7 @@ class _AdminPageState extends State<AdminPage> {
               ]
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'View Attendance',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.approval),
-              label: 'Leave Approvals',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.grading),
-              label: 'Grading',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.amber[800],
-          onTap: _onItemTapped,
-        ),
+        bottomNavigationBar: getBottomNavigationBar(),
         floatingActionButton: FloatingActionButton(
           backgroundColor: const Color(0xff03dac6),
           foregroundColor: Colors.black,
@@ -239,41 +202,14 @@ class _AdminPageState extends State<AdminPage> {
       ),
 
 
-
-
       Scaffold(
         appBar: AppBar(
           title: const Text('Attendance Management System'),
         ),
-        body: const Center(
-          child:
-            Text (
-              "Welcome to Attendance Management System",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+        body: Center(
+          child: getLeaveApprovalWidget(),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'View Attendance',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.approval),
-              label: 'Leave Approvals',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.grading),
-              label: 'Grading',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.amber[800],
-          onTap: _onItemTapped,
-        ),
+        bottomNavigationBar: getBottomNavigationBar(),
       ),
 
 
@@ -293,28 +229,68 @@ class _AdminPageState extends State<AdminPage> {
             ),
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'View Attendance',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.approval),
-              label: 'Leave Approvals',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.grading),
-              label: 'Grading',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.amber[800],
-          onTap: _onItemTapped,
-        ),
+        bottomNavigationBar: getBottomNavigationBar(),
       ),
     ];
     return widgetOptions[_selectedIndex];
+  }
+
+  getLeaveApprovalWidget(){
+    if (leaveApprovalList.isEmpty){
+      return const Text("No Leave Approval");
+    }
+    else {
+      return Column(
+          children: <Widget>[
+            Flexible(
+              child: ListView.builder(
+                itemCount: leaveApprovalList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Card(
+                    shadowColor: Colors.grey.shade300,
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        child: Text(leaveApprovalList[index].username[0]),
+                      ),
+                      title: Text(
+                        leaveApprovalList[index].username,
+                      ),
+                      subtitle: Text(
+                        leaveApprovalList[index].date,
+                      ),
+                      trailing: Text (
+                        leaveApprovalList[index].reason,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ]
+      );
+    }
+  }
+
+  getBottomNavigationBar(){
+    return BottomNavigationBar(
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'View Attendance',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.approval),
+          label: 'Leave Approvals',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.grading),
+          label: 'Grading',
+        ),
+      ],
+      currentIndex: _selectedIndex,
+      selectedItemColor: Colors.amber[800],
+      onTap: _onItemTapped,
+    );
   }
 
 
