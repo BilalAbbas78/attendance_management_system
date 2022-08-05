@@ -34,9 +34,9 @@ class Database {
   Database(this.parent);
 }
 
-class LeaveApproval {
+class LeaveRequest {
   String username, date, reason;
-  LeaveApproval(this.username, this.date, this.reason);
+  LeaveRequest(this.username, this.date, this.reason);
 }
 
 class Grading {
@@ -95,7 +95,7 @@ class _AdminPageState extends State<AdminPage> {
   static List<String> attendanceList = ['Present', 'Absent', 'Leave'];
   static List<String> addAttendanceInfo = ['', '', ''];
   static List<UserAttendance> searchWithDateList = [];
-  static List<LeaveApproval> leaveApprovalList = [];
+  static List<LeaveRequest> leaveRequestList = [];
   static List<Grading> gradingList = [];
   static List<String> gradingMonthYear = ['2022', '08'];
 
@@ -148,7 +148,7 @@ class _AdminPageState extends State<AdminPage> {
     }
 
     setUserAttendance(dbList, userAttendanceList);
-    setLeaveApprovalList();
+    setLeaveRequestList();
     setGradingList();
 
     String formatDate(DateTime date) => DateFormat("dd-MM-yyyy").format(date);
@@ -187,16 +187,16 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
-  setLeaveApprovalList(){
-    leaveApprovalList.clear();
+  setLeaveRequestList(){
+    leaveRequestList.clear();
     for(var e in dbList){
       for (var e2 in e.children) {
-        if (e2.key.contains("LeaveApproval-")) {
-          leaveApprovalList.add(LeaveApproval(e.parent, e2.key.replaceFirst("LeaveApproval-", ""), e2.value));
+        if (e2.key.contains("LeaveRequest-")) {
+          leaveRequestList.add(LeaveRequest(e.parent, e2.key.replaceFirst("LeaveRequest-", ""), e2.value));
         }
       }
     }
-    // leaveApprovalList.add(LeaveApproval('user1', '2020-01-01', 'reason1'));
+    // leaveRequestList.add(LeaveRequest('user1', '2020-01-01', 'reason1'));
   }
 
   getWidget(){
@@ -244,7 +244,7 @@ class _AdminPageState extends State<AdminPage> {
           title: const Text('Attendance Management System'),
         ),
         body: Center(
-          child: getLeaveApprovalWidget(),
+          child: getLeaveRequestWidget(),
         ),
         bottomNavigationBar: getBottomNavigationBar(),
       ),
@@ -401,8 +401,8 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
-  getLeaveApprovalWidget(){
-    if (leaveApprovalList.isEmpty){
+  getLeaveRequestWidget(){
+    if (leaveRequestList.isEmpty){
       return const Text (
         "No leave approval pending",
         style: TextStyle(
@@ -416,17 +416,17 @@ class _AdminPageState extends State<AdminPage> {
           children: <Widget>[
             Flexible(
               child: ListView.builder(
-                itemCount: leaveApprovalList.length,
+                itemCount: leaveRequestList.length,
                 itemBuilder: (BuildContext context, int index) {
                   return Card(
                     shadowColor: Colors.grey.shade300,
                     child: ListTile(
                       leading: CircleAvatar(
-                        child: Text(leaveApprovalList[index].username[0]),
+                        child: Text(leaveRequestList[index].username[0]),
                       ),
                       title: Padding(
                         padding: const EdgeInsets.only(top: 10.0),
-                        child: Text(leaveApprovalList[index].username),
+                        child: Text(leaveRequestList[index].username),
                       ),
                       subtitle: Column (
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -434,11 +434,11 @@ class _AdminPageState extends State<AdminPage> {
                           children: [
                             Padding(
                               padding: const EdgeInsets.only(top: 10.0),
-                              child: Text(leaveApprovalList[index].date),
+                              child: Text(leaveRequestList[index].date),
                             ),
                             Padding(
                               padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                              child: Text(leaveApprovalList[index].reason),
+                              child: Text(leaveRequestList[index].reason),
                             ),
                           ]
                       ),
@@ -447,19 +447,19 @@ class _AdminPageState extends State<AdminPage> {
                         child: Row(
                           children: [
                             IconButton(onPressed: () {
-                              FirebaseDatabase.instance.ref("UserInfo").child(leaveApprovalList[index].username).child("LeaveApproval-${leaveApprovalList[index].date}").remove();
-                              FirebaseDatabase.instance.ref("UserInfo").child(leaveApprovalList[index].username).child("LeaveRejected-${leaveApprovalList[index].date}").set(leaveApprovalList[index].reason);
+                              FirebaseDatabase.instance.ref("UserInfo").child(leaveRequestList[index].username).child("LeaveRequest-${leaveRequestList[index].date}").remove();
+                              FirebaseDatabase.instance.ref("UserInfo").child(leaveRequestList[index].username).child("LeaveRejected-${leaveRequestList[index].date}").set(leaveRequestList[index].reason);
                               setState(() {
-                                leaveApprovalList.removeAt(index);
+                                leaveRequestList.removeAt(index);
                               });
                               showToast("Leave Rejected");
                             }, icon: const Icon(Icons.close)),
                             IconButton(onPressed: () {
-                              FirebaseDatabase.instance.ref("UserInfo").child(leaveApprovalList[index].username).child("LeaveApproval-${leaveApprovalList[index].date}").remove();
-                              FirebaseDatabase.instance.ref("UserInfo").child(leaveApprovalList[index].username).child("LeaveAccepted-${leaveApprovalList[index].date}").set(leaveApprovalList[index].reason);
-                              FirebaseDatabase.instance.ref("UserInfo").child(leaveApprovalList[index].username).child("Attendance-${leaveApprovalList[index].date}").set("Leave");
+                              FirebaseDatabase.instance.ref("UserInfo").child(leaveRequestList[index].username).child("LeaveRequest-${leaveRequestList[index].date}").remove();
+                              FirebaseDatabase.instance.ref("UserInfo").child(leaveRequestList[index].username).child("LeaveAccepted-${leaveRequestList[index].date}").set(leaveRequestList[index].reason);
+                              FirebaseDatabase.instance.ref("UserInfo").child(leaveRequestList[index].username).child("Attendance-${leaveRequestList[index].date}").set("Leave");
                               setState(() {
-                                leaveApprovalList.removeAt(index);
+                                leaveRequestList.removeAt(index);
                               });
                               showToast("Leave Approved");
                             }, icon: const Icon(Icons.done)),

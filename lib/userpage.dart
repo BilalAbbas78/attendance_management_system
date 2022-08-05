@@ -4,12 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 import 'adminpage.dart';
 
 class UserAttendance {
   String date, attendance, sortedDate = "";
   UserAttendance(this.date, this.attendance){
+    sortedDate = date.split("-").reversed.join("-");
+  }
+}
+
+class UserLeaveRequest {
+  String date, reason, status, sortedDate = "";
+  UserLeaveRequest(this.date, this.reason, this.status){
     sortedDate = date.split("-").reversed.join("-");
   }
 }
@@ -47,10 +55,15 @@ class _UserPageState extends State<UserPage> {
 
   static List<Database> dbList = [];
   static List<UserAttendance> userAttendanceList = [];
+  static List<UserLeaveRequest> userLeaveRequestList = [];
   int _selectedIndex = 0;
   String username = "Bilal";
   static String todayDateReverse = DateTime.now().toString().substring(0, 10);
   static String todayDate = todayDateReverse.split("-").reversed.join("-");
+  DateTime selectedDateAddAttendance = DateTime.now();
+  final TextEditingController _textFieldController = TextEditingController();
+
+
 
 
 
@@ -96,6 +109,7 @@ class _UserPageState extends State<UserPage> {
       }
       dbList.add(dbUser);
       setUserAttendanceList();
+      setUserLeaveRequestList();
       // showToast(todayDate);
     }
 
@@ -106,6 +120,33 @@ class _UserPageState extends State<UserPage> {
     // searchWithDate(formatDate(selectedDateFilterAttendance));
 
     return true;
+  }
+
+  setUserLeaveRequestList() {
+    userLeaveRequestList.clear();
+    for (var element in dbList) {
+      for (var element2 in element.children) {
+        if (element2.key.contains("Leave") &&
+            element.parent.contains(username)) {
+          if (element2.key.contains("LeaveRequest")) {
+            userLeaveRequestList.add(UserLeaveRequest(
+                element2.key.replaceFirst("LeaveRequest-", ""), element2.value,
+                "Pending"));
+          }
+          else if (element2.key.contains("LeaveAccepted")) {
+            userLeaveRequestList.add(UserLeaveRequest(
+                element2.key.replaceFirst("LeaveAccepted-", ""), element2.value,
+                "Accepted"));
+          }
+          else if (element2.key.contains("LeaveRejected")) {
+            userLeaveRequestList.add(UserLeaveRequest(
+                element2.key.replaceFirst("LeaveRejected-", ""), element2.value,
+                "Rejected"));
+          }
+        }
+      }
+    }
+    userLeaveRequestList.sort((a, b) => a.sortedDate.compareTo(b.sortedDate));
   }
 
   setUserAttendanceList() {
@@ -153,13 +194,141 @@ class _UserPageState extends State<UserPage> {
           title: const Text('Attendance Management System'),
         ),
         body: Center(
-          // child: getLeaveApprovalWidget(),
+          child: getRequestLeaveWidget(),
         ),
         bottomNavigationBar: getBottomNavigationBar(),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: const Color(0xff03dac6),
+          foregroundColor: Colors.black,
+          tooltip: 'Request Leave',
+          onPressed: () {
+            _selectDateRequestLeave(context);
+          },
+          child: const Icon(Icons.add),
+        ),
       ),
 
     ];
     return widgetOptions[_selectedIndex];
+  }
+
+  Future<void> _displayTextInputDialog(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          String formatDate(DateTime date) => DateFormat("dd-MM-yyyy").format(date);
+          return AlertDialog(
+            title: Text('Request Leave for ${formatDate(selectedDateAddAttendance)}'),
+            content: TextField(
+              onChanged: (value) {
+                setState(() {
+                  // valueText = value;
+                });
+              },
+              controller: _textFieldController,
+              decoration: InputDecoration(hintText: "Enter Reason for Leave"),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text('SUBMIT'),
+                onPressed: () {
+                  if (_textFieldController.text.isNotEmpty) {
+                    FirebaseDatabase.instance
+                        .ref()
+                        .child("UserInfo")
+                        .child(username)
+                        .child("LeaveRequest-${formatDate(selectedDateAddAttendance)}")
+                        .set(_textFieldController.text);
+                    _textFieldController.clear();
+                    setState(() {
+                      Navigator.pop(context);
+                    });
+                  }
+
+                },
+              ),
+
+            ],
+          );
+        });
+  }
+
+  Future<void> _selectDateRequestLeave(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDateAddAttendance,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null) {
+      _displayTextInputDialog(context);
+      // showDialog(
+      //     context: context,
+      //     builder: (BuildContext context) {
+      //
+      //       return AlertDialog(
+      //         title: const Text('Select Attendance'),
+      //         content: addAttendanceListDialog(),
+      //       );
+      //
+      //     });
+      setState(() {
+        selectedDateAddAttendance = picked;
+        // addAttendanceInfo[1] = formatDate(picked);
+      });
+    }
+  }
+
+  getRequestLeaveWidget(){
+    if (userLeaveRequestList.isEmpty){
+      return const Text (
+        "Nothing to show",
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    }
+    else {
+      return Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+              child: Text("Student: $username",
+                style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Flexible(
+              child: ListView.builder(
+                itemCount: userLeaveRequestList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Card(
+                    shadowColor: Colors.grey.shade300,
+                    child: ListTile(
+                      title: Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: Text(userLeaveRequestList[index].date),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                        child: Text(userLeaveRequestList[index].reason),
+                      ),
+                      trailing: Text(userLeaveRequestList[index].status,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ]
+      );
+    }
   }
 
   getViewAttendanceWidget(){
@@ -204,6 +373,7 @@ class _UserPageState extends State<UserPage> {
                               userAttendanceList[index].attendance,
                               style: const TextStyle(
                                 color: Colors.orange,
+                                fontSize: 15,
                                 fontWeight: FontWeight.bold,
 
                               )
@@ -216,7 +386,12 @@ class _UserPageState extends State<UserPage> {
                       shadowColor: Colors.grey.shade300,
                       child: ListTile(
                         title: Text(userAttendanceList[index].date),
-                        trailing: Text(userAttendanceList[index].attendance),
+                        trailing: Text(userAttendanceList[index].attendance,
+                          style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        ),
                       ),
                     );
                   }
@@ -232,12 +407,12 @@ class _UserPageState extends State<UserPage> {
   void handleClick(String value) {
     switch (value) {
       case 'Mark Attendance':
-        FirebaseDatabase.instance.ref().child("UserInfo").child(username).child("Attendance-${todayDate}").get().then((value) {
+        FirebaseDatabase.instance.ref().child("UserInfo").child(username).child("Attendance-$todayDate").get().then((value) {
           if (value.value == "Present") {
             showToast("Attendance already marked");
           }
           else {
-            FirebaseDatabase.instance.ref().child("UserInfo").child(username).child("Attendance-${todayDate}").set("Present");
+            FirebaseDatabase.instance.ref().child("UserInfo").child(username).child("Attendance-$todayDate").set("Present");
             showToast("Attendance marked");
           }
         });
