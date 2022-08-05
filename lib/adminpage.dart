@@ -115,11 +115,11 @@ class _AdminPageState extends State<AdminPage> {
       dbList.add(dbUser);
     }
 
-    for(var e in dbList){
-      for (var e2 in e.children) {
-        debugPrint("${e.parent} ${e2.key} ${e2.value}");
-      }
-    }
+    // for(var e in dbList){
+    //   for (var e2 in e.children) {
+    //     debugPrint("${e.parent} ${e2.key} ${e2.value}");
+    //   }
+    // }
 
     setUserAttendance(dbList, userAttendanceList);
 
@@ -137,6 +137,9 @@ class _AdminPageState extends State<AdminPage> {
                   return Card(
                     shadowColor: Colors.grey.shade300,
                     child: ListTile(
+                      leading: CircleAvatar(
+                        child: Text(userAttendanceList[index].username[0]),
+                      ),
                       title: Text(
                         userAttendanceList[index].username,
                       ),
@@ -160,6 +163,9 @@ class _AdminPageState extends State<AdminPage> {
                           setState(() {});
                         },
                       ),
+                      onLongPress: () {
+                        _deleteAttendanceDialog(index);
+                      },
                     ),
                   );
                 },
@@ -168,11 +174,11 @@ class _AdminPageState extends State<AdminPage> {
           ]
       ),
       const Text(
-        'Index 1: Business',
+        'Index 1: Leave Approvals',
         style: optionStyle,
       ),
       const Text(
-        'Index 2: School',
+        'Index 2: Grading',
         style: optionStyle,
       ),
     ];
@@ -207,16 +213,16 @@ class _AdminPageState extends State<AdminPage> {
               bottomNavigationBar: BottomNavigationBar(
                 items: const <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.home),
+                    icon: Icon(Icons.person),
                     label: 'View Attendance',
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.business),
-                    label: 'Business',
+                    icon: Icon(Icons.approval),
+                    label: 'Leave Approvals',
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.school),
-                    label: 'School',
+                    icon: Icon(Icons.grading),
+                    label: 'Grading',
                   ),
                 ],
                 currentIndex: _selectedIndex,
@@ -230,6 +236,7 @@ class _AdminPageState extends State<AdminPage> {
                 onPressed: () {
                   // Respond to button press
                   showToast("Add Attendance Pressed");
+                  setupAlertDialoadContainer();
                 },
                 child: const Icon(Icons.add),
               ),
@@ -245,6 +252,59 @@ class _AdminPageState extends State<AdminPage> {
             );
           }
         }
+    );
+  }
+
+  Widget setupAlertDialoadContainer() {
+    return Container(
+      height: 300.0, // Change as per your requirement
+      width: 300.0, // Change as per your requirement
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: 5,
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            title: Text('Gujarat, India'),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _deleteAttendanceDialog(int index) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Attendance'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Do you want to delete this attendance?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                FirebaseDatabase.instance.ref("UserInfo").child(userAttendanceList[index].username).child("Attendance-${userAttendanceList[index].date}").remove();
+                userAttendanceList.removeAt(index);
+                setState(() {});
+                showToast("Attendance Deleted");
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
