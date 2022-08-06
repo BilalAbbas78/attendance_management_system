@@ -185,7 +185,7 @@ class _UserPageState extends State<UserPage> {
           ),
           actions: <Widget>[
             IconButton(
-              icon: const Icon(Icons.person_add),
+              icon: const Icon(Icons.back_hand_outlined),
               onPressed: () {
                 FirebaseDatabase.instance.ref().child("UserInfo").child(username).child("Attendance-$todayDate").get().then((value) {
                   if (value.value == "Present") {
@@ -285,22 +285,16 @@ class _UserPageState extends State<UserPage> {
         firstDate: DateTime(2015, 8),
         lastDate: DateTime(2101));
     if (picked != null) {
-      // ignore: use_build_context_synchronously
-      _displayTextInputDialog(context);
-      // showDialog(
-      //     context: context,
-      //     builder: (BuildContext context) {
-      //
-      //       return AlertDialog(
-      //         title: const Text('Select Attendance'),
-      //         content: addAttendanceListDialog(),
-      //       );
-      //
-      //     });
-      setState(() {
-        selectedDateAddAttendance = picked;
-        // addAttendanceInfo[1] = formatDate(picked);
-      });
+      if (picked.isBefore(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))) {
+        showToast("You can't request leave for past date");
+      }
+      else {
+        // ignore: use_build_context_synchronously
+        _displayTextInputDialog(context);
+        setState(() {
+          selectedDateAddAttendance = picked;
+        });
+      }
     }
   }
 
