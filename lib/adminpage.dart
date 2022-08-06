@@ -503,16 +503,42 @@ class _AdminPageState extends State<AdminPage> {
 
   getBottomNavigationBar(){
     return BottomNavigationBar(
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
+      items: <BottomNavigationBarItem>[
+        const BottomNavigationBarItem(
           icon: Icon(Icons.person),
           label: 'View Attendance',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.approval),
+          icon: Stack(
+            children: <Widget>[
+              const Icon(Icons.approval),
+              Positioned(
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(1),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 12,
+                    minHeight: 12,
+                  ),
+                  child: Text(
+                    leaveRequestList.length.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              )
+            ],
+          ),
           label: 'Leave Approvals',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.grading),
           label: 'Grading',
         ),

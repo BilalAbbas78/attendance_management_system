@@ -100,7 +100,7 @@ class LoginPageState extends State<LoginPage> {
                     inactiveFgColor: Colors.white,
                     totalSwitches: 2,
                     labels: const ['Admin', 'Student'],
-                    icons: const [Icons.abc, Icons.ac_unit],
+                    icons: const [Icons.admin_panel_settings_outlined, Icons.supervised_user_circle_outlined],
                     activeBgColors: const [[Colors.blue],[Colors.green]],
                     onToggle: (index) {
                       if (index == 1){

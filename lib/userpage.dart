@@ -272,7 +272,7 @@ class _UserPageState extends State<UserPage> {
                       Navigator.pop(context);
                     });
                   }
-
+                  showToast("Leave Request Submitted");
                 },
               ),
 
