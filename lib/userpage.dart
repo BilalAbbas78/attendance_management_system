@@ -1,4 +1,5 @@
 // import 'package:firebase_database/firebase_database.dart';
+import 'package:attendance_management_system/loginpage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -77,6 +78,9 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
+    LoginPageState.txtUsername.clear();
+    LoginPageState.txtPassword.clear();
+    // FocusScope.of(LoginPageState().context).requestFocus(LoginPageState.txtUsernameFocusNode);
     return FutureBuilder<bool>(
         future: initialize(),
         builder: (context, AsyncSnapshot<bool> snapshot) {
