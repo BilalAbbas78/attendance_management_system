@@ -4,6 +4,7 @@ import 'package:attendance_management_system/adminpage.dart';
 import 'package:attendance_management_system/userpage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -213,6 +214,19 @@ class LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ],
+                ),
+                SizedBox(
+                  height: 50,
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: InkWell(
+                    onTap: () => SystemNavigator.pop(),
+                    child: Icon(
+                      size: 35,
+                      Icons.exit_to_app_outlined,
+                    ),
+                ),
                 ),
               ],
             ),

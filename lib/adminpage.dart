@@ -528,7 +528,7 @@ class _AdminPageState extends State<AdminPage> {
                     leaveRequestList.length.toString(),
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 8,
+                      fontSize: 10,
                     ),
                     textAlign: TextAlign.center,
                   ),
