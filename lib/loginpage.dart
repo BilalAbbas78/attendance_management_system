@@ -58,7 +58,7 @@ class LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
                     Padding(
-                      padding: EdgeInsets.only(top: 20.0),
+                      padding: EdgeInsets.only(top: 30.0),
                       child: Text(
                         'Attendance Management System',
                         style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),

@@ -116,12 +116,12 @@ class _AdminPageState extends State<AdminPage> {
           } else {
             return Scaffold(
                 appBar: AppBar(
-                  title: const Text('Attendance Management System',
-                    style: TextStyle(
-                      fontSize: 17,
-                    ),
+                    title: const Text('Attendance Management System',
+                      style: TextStyle(
+                        fontSize: 17,
+                      ),
                     )
-                  ),
+                ),
                 body: const Center(
                     child: CircularProgressIndicator()
                 )
@@ -182,17 +182,19 @@ class _AdminPageState extends State<AdminPage> {
       present = 0; absent = 0; leave = 0;
       for (var e2 in e.children) {
         if (e2.key.contains(RegExp("Attendance-[0-9]{2}-${gradingMonthYear[1]}-${gradingMonthYear[0]}"))) {
-          if (e2.value.contains("Present")) {
+          if (e2.value == "Present") {
             present++;
-          } else if (e2.value.contains("Absent")) {
+          } else if (e2.value == "Absent") {
             absent++;
-          } else if (e2.value.contains("Leave")) {
+          } else if (e2.value == "Leave") {
             leave++;
           }
         }
       }
-      Grading g = Grading(e.parent, present.toString(), absent.toString(), leave.toString());
-      gradingList.add(g);
+      if (present != 0 || absent != 0 || leave != 0) {
+        Grading g = Grading(e.parent, present.toString(), absent.toString(), leave.toString());
+        gradingList.add(g);
+      }
     }
   }
 
@@ -200,7 +202,7 @@ class _AdminPageState extends State<AdminPage> {
     leaveRequestList.clear();
     for(var e in dbList){
       for (var e2 in e.children) {
-        if (e2.key.contains("LeaveRequest-")) {
+        if (e2.key.startsWith("LeaveRequest-")) {
           leaveRequestList.add(LeaveRequest(e.parent, e2.key.replaceFirst("LeaveRequest-", ""), e2.value));
         }
       }
@@ -674,7 +676,7 @@ class _AdminPageState extends State<AdminPage> {
     userAttendanceList.clear();
     for(var e in list){
       for (var e2 in e.children) {
-        if (e2.key.contains("Attendance-")) {
+        if (e2.key.startsWith("Attendance-")) {
           userAttendanceList.add(UserAttendance(
               "", e.parent, e2.key.replaceFirst("Attendance-", ""), e2.value));
         }

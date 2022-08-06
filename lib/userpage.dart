@@ -142,19 +142,18 @@ class _UserPageState extends State<UserPage> {
     userLeaveRequestList.clear();
     for (var element in dbList) {
       for (var element2 in element.children) {
-        if (element2.key.contains("Leave") &&
-            element.parent.contains(username)) {
-          if (element2.key.contains("LeaveRequest")) {
+        if (element2.key.startsWith("Leave") && element.parent == username) {
+          if (element2.key.startsWith("LeaveRequest")) {
             userLeaveRequestList.add(UserLeaveRequest(
                 element2.key.replaceFirst("LeaveRequest-", ""), element2.value,
                 "Pending"));
           }
-          else if (element2.key.contains("LeaveAccepted")) {
+          else if (element2.key.startsWith("LeaveAccepted")) {
             userLeaveRequestList.add(UserLeaveRequest(
                 element2.key.replaceFirst("LeaveAccepted-", ""), element2.value,
                 "Accepted"));
           }
-          else if (element2.key.contains("LeaveRejected")) {
+          else if (element2.key.startsWith("LeaveRejected")) {
             userLeaveRequestList.add(UserLeaveRequest(
                 element2.key.replaceFirst("LeaveRejected-", ""), element2.value,
                 "Rejected"));
@@ -169,7 +168,7 @@ class _UserPageState extends State<UserPage> {
     userAttendanceList.clear();
     for (var element in dbList) {
       for (var element2 in element.children) {
-        if (element2.key.contains("Attendance-") && element.parent.contains(username)) {
+        if (element2.key.startsWith("Attendance-") && element.parent == username) {
           UserAttendance userAttendance = UserAttendance(element2.key.replaceFirst("Attendance-", ""), element2.value);
           userAttendanceList.add(userAttendance);
         }
