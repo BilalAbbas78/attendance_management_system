@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -21,6 +22,8 @@ class LoginPageState extends State<LoginPage> {
   static TextEditingController txtPassword = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   static FocusNode txtUsernameFocusNode = FocusNode();
+  static bool _isButtonDisabled = true;
+  static bool _isAdminSelected = true;
 
   static String todayDate = DateTime.now().toString().substring(0, 10).split("-").reversed.join("-");
 
@@ -39,6 +42,8 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    _isButtonDisabled = true;
+    _isAdminSelected = true;
     // FocusScope.of(context).requestFocus(txtUsernameFocusNode);
     initialize();
 
@@ -83,7 +88,35 @@ class LoginPageState extends State<LoginPage> {
                   'Please sign in to continue',
                 ),
                 const SizedBox(
-                  height: 40,
+                  height: 14,
+                ),
+                Center(
+                  child: ToggleSwitch(
+                    minWidth: 90.0,
+                    initialLabelIndex: 0,
+                    cornerRadius: 20.0,
+                    activeFgColor: Colors.white,
+                    inactiveBgColor: Colors.grey,
+                    inactiveFgColor: Colors.white,
+                    totalSwitches: 2,
+                    labels: const ['Admin', 'Student'],
+                    icons: const [Icons.abc, Icons.ac_unit],
+                    activeBgColors: const [[Colors.blue],[Colors.green]],
+                    onToggle: (index) {
+                      if (index == 1){
+                        _isAdminSelected = false;
+                        _isButtonDisabled = false;
+                      }
+                      else if (index == 0){
+                        _isAdminSelected = true;
+                        _isButtonDisabled = true;
+                      }
+                      debugPrint('switched to: $index');
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: 30,
                 ),
                 TextFormField(
                   controller: txtUsername,
@@ -133,7 +166,7 @@ class LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     InkWell(
-                      onTap: () => signUp(context),
+                      onTap: () => _isButtonDisabled ? showToast("Can't sign up for Admin") : signUp(context),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
@@ -219,16 +252,23 @@ class LoginPageState extends State<LoginPage> {
     var sp = await ref.once();
 
     if (_formKey.currentState!.validate()){
-      if (txtUsername.text == "admin" && txtPassword.text == "admin") {
-        FocusScope.of(context).requestFocus(txtUsernameFocusNode);
-        gotoAdminPage(context);
-      }
-      else if (sp.snapshot.child("password").value == txtPassword.text) {
-        FocusScope.of(context).requestFocus(txtUsernameFocusNode);
-        gotoUserPage(context);
+      if (_isAdminSelected){
+        if (txtUsername.text == "admin" && txtPassword.text == "admin") {
+          FocusScope.of(context).requestFocus(txtUsernameFocusNode);
+          gotoAdminPage(context);
+        }
+        else{
+          showToast("Invalid username or password");
+        }
       }
       else {
-        showToast("Incorrect username or password");
+        if (sp.snapshot.child("password").value == txtPassword.text) {
+          FocusScope.of(context).requestFocus(txtUsernameFocusNode);
+          gotoUserPage(context);
+        }
+        else {
+          showToast("Invalid username or password");
+        }
       }
     }
   }
