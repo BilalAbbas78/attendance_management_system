@@ -303,12 +303,28 @@ class _UserPageState extends State<UserPage> {
 
   getRequestLeaveWidget(){
     if (userLeaveRequestList.isEmpty){
-      return const Text (
-        "Nothing to show",
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
+      return Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+              child: Text("Student: $username",
+                style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const Center(
+              heightFactor: 30,
+              child: Text (
+                "Nothing to show",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ]
       );
     }
     else {
@@ -356,12 +372,28 @@ class _UserPageState extends State<UserPage> {
 
   getViewAttendanceWidget(){
     if (userAttendanceList.isEmpty){
-      return const Text (
-        "Nothing to show",
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
+      return Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+              child: Text("Student: $username",
+                style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const Center(
+              heightFactor: 30,
+              child: Text (
+                "Nothing to show",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ]
       );
     }
     else {
