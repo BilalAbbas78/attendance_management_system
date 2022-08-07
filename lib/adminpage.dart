@@ -396,26 +396,42 @@ class _AdminPageState extends State<AdminPage> {
                       subtitle: Text(
                         searchWithDateList[index].date,
                       ),
-                      // trailing: Text(
-                      //   searchWithDateList[index].attendance,
-                      // ),
-                      trailing: DropdownButton<String>(
-                        value: searchWithDateList[index].attendance,
-                        items: <String>['Present', 'Absent', 'Leave'].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          searchWithDateList[index].attendance = newValue!;
-                          FirebaseDatabase.instance.ref("UserInfo").child(searchWithDateList[index].username).child("Attendance-${searchWithDateList[index].date}").set(newValue);
-                          setState(() {});
-                        },
+                      trailing: Padding(
+                        padding: const EdgeInsets.only(right: 30.0),
+                        child: SizedBox(
+                          width: 100,
+                            child: Wrap(
+                              alignment: WrapAlignment.center,
+                              direction: Axis.vertical,
+                              runSpacing: 20,
+                              children: [
+                                DropdownButton<String>(
+                                  value: searchWithDateList[index].attendance,
+                                  items: <String>['Present', 'Absent', 'Leave'].map((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    searchWithDateList[index].attendance = newValue!;
+                                    FirebaseDatabase.instance.ref("UserInfo").child(searchWithDateList[index].username).child("Attendance-${searchWithDateList[index].date}").set(newValue);
+                                    setState(() {});
+                                  },
+                                ),
+                                InkWell(
+                                    onTap: () {
+                                      _deleteAttendanceDialog(index);
+                                    },
+                                    child: const Icon(
+                                      Icons.delete,
+                                      size: 30,
+                                    )
+                                ),
+                              ],
+                          ),
+                        ),
                       ),
-                      onLongPress: () {
-                        _deleteAttendanceDialog(index);
-                      },
                     ),
                   );
                 },

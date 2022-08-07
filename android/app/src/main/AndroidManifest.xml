@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.syedbilalabbas.attendance_management_system">
    <application
-        android:label="attendance_management_system"
+        android:label="Attendance Management System"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
