@@ -65,15 +65,17 @@ class LoginPageState extends State<LoginPage> {
                   children: const [
                     Padding(
                       padding: EdgeInsets.only(top: 30.0),
-                      child: Text(
-                        'Attendance Management System',
-                        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                      child: Center(
+                        child: Text(
+                          'Attendance Management System',
+                          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(
-                  height: 30,
+                  height: 20,
                 ),
                 const Text(
                   'Sign in',
@@ -83,41 +85,43 @@ class LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(
-                  height: 14,
+                  height: 10,
                 ),
                 const Text(
                   'Please sign in to continue',
                 ),
                 const SizedBox(
-                  height: 14,
+                  height: 15,
                 ),
                 Center(
-                  child: ToggleSwitch(
-                    minWidth: 90.0,
-                    initialLabelIndex: 0,
-                    cornerRadius: 20.0,
-                    activeFgColor: Colors.white,
-                    inactiveBgColor: Colors.grey,
-                    inactiveFgColor: Colors.white,
-                    totalSwitches: 2,
-                    labels: const ['Admin', 'Student'],
-                    icons: const [Icons.admin_panel_settings_outlined, Icons.supervised_user_circle_outlined],
-                    activeBgColors: const [[Colors.blue],[Colors.green]],
-                    onToggle: (index) {
-                      if (index == 1){
-                        _isAdminSelected = false;
-                        _isButtonDisabled = false;
-                      }
-                      else if (index == 0){
-                        _isAdminSelected = true;
-                        _isButtonDisabled = true;
-                      }
-                      debugPrint('switched to: $index');
-                    },
+                  child: Expanded(
+                    child: ToggleSwitch(
+                      minWidth: 130.0,
+                      initialLabelIndex: 0,
+                      cornerRadius: 20.0,
+                      activeFgColor: Colors.white,
+                      inactiveBgColor: Colors.grey,
+                      inactiveFgColor: Colors.white,
+                      totalSwitches: 2,
+                      labels: const ['Admin', 'Student'],
+                      icons: const [Icons.admin_panel_settings_outlined, Icons.supervised_user_circle_outlined],
+                      activeBgColors: const [[Colors.blue],[Colors.green]],
+                      onToggle: (index) {
+                        if (index == 1){
+                          _isAdminSelected = false;
+                          _isButtonDisabled = false;
+                        }
+                        else if (index == 0){
+                          _isAdminSelected = true;
+                          _isButtonDisabled = true;
+                        }
+                        debugPrint('switched to: $index');
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(
-                  height: 30,
+                  height: 20,
                 ),
                 TextFormField(
                   controller: txtUsername,
@@ -141,7 +145,7 @@ class LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(
-                  height: 30,
+                  height: 20,
                 ),
                 TextFormField(
                   controller: txtPassword,
@@ -161,7 +165,7 @@ class LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(
-                  height: 30,
+                  height: 15,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -216,7 +220,7 @@ class LoginPageState extends State<LoginPage> {
                   ],
                 ),
                 const SizedBox(
-                  height: 50,
+                  height: 30,
                 ),
                 Align(
                   alignment: Alignment.centerRight,
@@ -226,7 +230,7 @@ class LoginPageState extends State<LoginPage> {
                       size: 35,
                       Icons.exit_to_app_outlined,
                     ),
-                ),
+                  ),
                 ),
               ],
             ),
