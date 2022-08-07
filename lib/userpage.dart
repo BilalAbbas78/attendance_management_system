@@ -91,7 +91,8 @@ class _UserPageState extends State<UserPage> {
                 appBar: AppBar(
                   title: const Text('Attendance Management System',
                     style: TextStyle(
-                      fontSize: 17,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -183,7 +184,8 @@ class _UserPageState extends State<UserPage> {
         appBar: AppBar(
           title: const Text('Attendance Management System',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
             ),
           ),
           actions: <Widget>[
@@ -217,7 +219,8 @@ class _UserPageState extends State<UserPage> {
         appBar: AppBar(
           title: const Text('Attendance Management System',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),

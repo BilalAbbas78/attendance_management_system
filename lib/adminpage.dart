@@ -100,7 +100,7 @@ class _AdminPageState extends State<AdminPage> {
   static List<UserAttendance> searchWithDateList = [];
   static List<LeaveRequest> leaveRequestList = [];
   static List<Grading> gradingList = [];
-  static List<String> gradingMonthYear = ['2022', '08'];
+  static List<String> gradingMonthYear = [DateTime.now().year.toString(), zeros(DateTime.now().month.toString())];
 
   int _selectedIndex = 0;
 
@@ -118,7 +118,8 @@ class _AdminPageState extends State<AdminPage> {
                 appBar: AppBar(
                     title: const Text('Attendance Management System',
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
                       ),
                     )
                 ),
@@ -167,7 +168,7 @@ class _AdminPageState extends State<AdminPage> {
     return true;
   }
 
-  zeros(String str){
+  static zeros(String str){
     if (str.length == 1) {
       return "0$str";
     } else {
@@ -217,7 +218,8 @@ class _AdminPageState extends State<AdminPage> {
         appBar: AppBar(
           title: const Text('Attendance Management System',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
             ),
           ),
 
@@ -260,7 +262,8 @@ class _AdminPageState extends State<AdminPage> {
         appBar: AppBar(
           title: const Text('Attendance Management System',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -277,7 +280,8 @@ class _AdminPageState extends State<AdminPage> {
         appBar: AppBar(
           title: const Text('Attendance Management System',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
             ),
           ),
           actions: [

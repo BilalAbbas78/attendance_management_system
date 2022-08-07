@@ -65,12 +65,12 @@ class LoginPageState extends State<LoginPage> {
                   children: const [
                     Padding(
                       padding: EdgeInsets.only(top: 30.0),
-                      child: Center(
+                      // child: Expanded(
                         child: Text(
                           'Attendance Management System',
-                          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                      ),
+                      // ),
                     ),
                   ],
                 ),
@@ -243,16 +243,16 @@ class LoginPageState extends State<LoginPage> {
 
 
   void signUp(BuildContext context) async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo/${txtUsername.text}");
+    DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo/${txtUsername.text.trim()}");
     var sp = await ref.once();
 
     if (_formKey.currentState!.validate()) {
       if (sp.snapshot.value == null) {
         await ref.set({
-          "password": txtPassword.text,
+          "password": txtPassword.text.trim(),
         });
         showToast("Account created successfully");
-        FirebaseDatabase.instance.ref().child("UserInfo").child(txtUsername.text).child("Attendance-$todayDate").set("Absent");
+        FirebaseDatabase.instance.ref().child("UserInfo").child(txtUsername.text.trim()).child("Attendance-$todayDate").set("Absent");
         FocusScope.of(context).requestFocus(txtUsernameFocusNode);
         gotoUserPage(context);
         // txtUsername.clear();
@@ -266,12 +266,12 @@ class LoginPageState extends State<LoginPage> {
 
   void signIn(BuildContext context) async {
 
-    DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo/${txtUsername.text}");
+    DatabaseReference ref = FirebaseDatabase.instance.ref("UserInfo/${txtUsername.text.trim()}");
     var sp = await ref.once();
 
     if (_formKey.currentState!.validate()){
       if (_isAdminSelected){
-        if (txtUsername.text == "admin" && txtPassword.text == "admin") {
+        if (txtUsername.text.trim() == "admin" && txtPassword.text.trim() == "admin") {
           FocusScope.of(context).requestFocus(txtUsernameFocusNode);
           gotoAdminPage(context);
         }
@@ -280,7 +280,7 @@ class LoginPageState extends State<LoginPage> {
         }
       }
       else {
-        if (sp.snapshot.child("password").value == txtPassword.text) {
+        if (sp.snapshot.child("password").value == txtPassword.text.trim()) {
           FocusScope.of(context).requestFocus(txtUsernameFocusNode);
           gotoUserPage(context);
         }
@@ -306,7 +306,7 @@ class LoginPageState extends State<LoginPage> {
 
   void gotoUserPage(BuildContext context) {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => UserPage(strUsername: txtUsername.text)));
+        MaterialPageRoute(builder: (context) => UserPage(strUsername: txtUsername.text.trim())));
   }
 
   void showToast(String str){
