@@ -25,7 +25,8 @@ class MyApp extends StatelessWidget {
       ],
       theme: ThemeData(
           useMaterial3: true,
-          textTheme: GoogleFonts.poppinsTextTheme()),
+          textTheme: GoogleFonts.poppinsTextTheme()
+      ),
       debugShowCheckedModeBanner: false,
       home: const LoginPage(),
     );

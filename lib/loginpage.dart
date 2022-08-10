@@ -94,7 +94,7 @@ class LoginPageState extends State<LoginPage> {
                   height: 15,
                 ),
                 Center(
-                  child: Expanded(
+                  // child: Expanded(
                     child: ToggleSwitch(
                       minWidth: 130.0,
                       initialLabelIndex: 0,
@@ -118,7 +118,7 @@ class LoginPageState extends State<LoginPage> {
                         debugPrint('switched to: $index');
                       },
                     ),
-                  ),
+                  // ),
                 ),
                 const SizedBox(
                   height: 20,

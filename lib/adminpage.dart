@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:attendance_management_system/loginpage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 // ignore: depend_on_referenced_packages
@@ -104,10 +107,36 @@ class _AdminPageState extends State<AdminPage> {
 
   int _selectedIndex = 0;
 
+  final Completer<GoogleMapController> _controller = Completer();
+
+  static const CameraPosition initialCameraPosition = CameraPosition(
+    bearing: -40.0,
+    tilt: 40.0,
+    target: LatLng(33.603577, 73.026438),
+    zoom: 20.0,
+  );
+
+  // static const CameraPosition ezilineCameraPosition = CameraPosition(
+  //     bearing: -40.0,
+  //     target: LatLng(33.603577, 73.026438),
+  //     tilt: 40,
+  //     zoom: 20);
+
+  // gotoEziline() async {
+  //   final GoogleMapController controller = await _controller.future;
+  //   controller.animateCamera(CameraUpdate.newCameraPosition(ezilineCameraPosition));
+  // }
+
+
+
   @override
   Widget build(BuildContext context) {
     LoginPageState.txtUsername.clear();
     LoginPageState.txtPassword.clear();
+
+    // showToast("str");
+
+
     return FutureBuilder<bool>(
         future: initialize(),
         builder: (context, AsyncSnapshot<bool> snapshot) {
@@ -133,9 +162,18 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   void _onItemTapped(int index) {
+    // if (index == 3) {
+    //   gotoEziline();
+    // }
+
     setState(() {
       _selectedIndex = index;
+      // showToast(index.toString());
+
     });
+
+
+
   }
 
   Future<bool> initialize() async {
@@ -213,6 +251,7 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   getWidget(){
+
     final List<Widget> widgetOptions = <Widget>[
       Scaffold(
         appBar: AppBar(
@@ -314,7 +353,33 @@ class _AdminPageState extends State<AdminPage> {
 
 
 
+
+      Scaffold(
+        appBar: AppBar(
+          title: const Text('Attendance Management System',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        body: Center(
+          child: GoogleMap(
+            mapType: MapType.normal,
+            initialCameraPosition: initialCameraPosition,
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+          ),
+        ),
+        bottomNavigationBar: getBottomNavigationBar(),
+      ),
+
+
+
     ];
+
+
     return widgetOptions[_selectedIndex];
   }
 
@@ -404,35 +469,35 @@ class _AdminPageState extends State<AdminPage> {
                         padding: const EdgeInsets.only(right: 30.0),
                         child: SizedBox(
                           width: 100,
-                            child: Wrap(
-                              alignment: WrapAlignment.center,
-                              direction: Axis.vertical,
-                              runSpacing: 20,
-                              children: [
-                                DropdownButton<String>(
-                                  value: searchWithDateList[index].attendance,
-                                  items: <String>['Present', 'Absent', 'Leave'].map((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    searchWithDateList[index].attendance = newValue!;
-                                    FirebaseDatabase.instance.ref("UserInfo").child(searchWithDateList[index].username).child("Attendance-${searchWithDateList[index].date}").set(newValue);
-                                    setState(() {});
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            direction: Axis.vertical,
+                            runSpacing: 20,
+                            children: [
+                              DropdownButton<String>(
+                                value: searchWithDateList[index].attendance,
+                                items: <String>['Present', 'Absent', 'Leave'].map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                                onChanged: (String? newValue) {
+                                  searchWithDateList[index].attendance = newValue!;
+                                  FirebaseDatabase.instance.ref("UserInfo").child(searchWithDateList[index].username).child("Attendance-${searchWithDateList[index].date}").set(newValue);
+                                  setState(() {});
+                                },
+                              ),
+                              InkWell(
+                                  onTap: () {
+                                    _deleteAttendanceDialog(index);
                                   },
-                                ),
-                                InkWell(
-                                    onTap: () {
-                                      _deleteAttendanceDialog(index);
-                                    },
-                                    child: const Icon(
-                                      Icons.delete,
-                                      size: 30,
-                                    )
-                                ),
-                              ],
+                                  child: const Icon(
+                                    Icons.delete,
+                                    size: 30,
+                                  )
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -523,6 +588,7 @@ class _AdminPageState extends State<AdminPage> {
 
   getBottomNavigationBar(){
     return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
       items: <BottomNavigationBarItem>[
         const BottomNavigationBarItem(
           icon: Icon(Icons.person),
@@ -561,6 +627,10 @@ class _AdminPageState extends State<AdminPage> {
         const BottomNavigationBarItem(
           icon: Icon(Icons.grading),
           label: 'Grading',
+        ),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.location_pin),
+          label: 'Location',
         ),
       ],
       currentIndex: _selectedIndex,
